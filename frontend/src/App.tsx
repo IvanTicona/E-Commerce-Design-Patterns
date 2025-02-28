@@ -14,6 +14,17 @@ function App() {
       <Route element={<PricingPage />} path="/pricing" />
       <Route element={<BlogPage />} path="/blog" />
       <Route element={<AboutPage />} path="/about" />
+      {/* <Route element={<LandingPage />} path="/landing" /> */}
+      {/* ListadoProductos */}
+      {/* DetalleProducto */}
+      {/* CategoriasProducto */}
+      {/* ResultadosBusqueda */}
+      {/* ResumenCarrito */}
+      {/* CheckoutCarrito */}
+      {/* MetodoDePago */}
+      {/* DatosDePag */}
+      {/* ConfirmacionDePago */}
+      {/* Notificaciones */}
     </Routes>
   );
 }
