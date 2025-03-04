@@ -7,6 +7,7 @@ import LandingPage from "@/pages/landing";
 import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
+import CheckoutPage from "@/pages/checkout";
 
 function App() {
   const location = useLocation();
@@ -26,6 +27,7 @@ function App() {
           <Route element={<CategoryPage />} path="/category" />
           <Route element={<OffersPage />} path="/offers" />
           <Route element={<ProductPage />} path="/product/:id" />
+          <Route element={<CheckoutPage />} path="/checkout" />
           {/* ListadoProductos */}
           {/* DetalleProducto */}
           {/* CategoriasProducto */}

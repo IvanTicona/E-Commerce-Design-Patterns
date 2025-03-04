@@ -23,6 +23,8 @@ import {
   ModalFooter,
 } from "@heroui/react";
 
+import { products } from "@/data/products";
+
 const Checkout = () => {
   const [addresses, setAddresses] = useState([
     "Daniel Alejandro López Quinteros, Av. Saavedra Edificio Ibita No 1760, La Paz, Bolivia",
@@ -44,6 +46,8 @@ const Checkout = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [countries, setCountries] = useState<{ cca3: string; name: { common: string } }[]>([]); 
+  const [cart, setCart] = useState<any[]>([]);
+
   
 
   // Cargar países desde la API
@@ -121,6 +125,57 @@ const Checkout = () => {
   };
 
   
+
+  useEffect(() => {
+    const buyNowItem = sessionStorage.getItem("buyNow");
+  
+    if (buyNowItem) {
+      console.log("Datos en sessionStorage:", buyNowItem); // Debug
+  
+      const parsedBuyNow = JSON.parse(buyNowItem);
+  
+      if (Array.isArray(parsedBuyNow) && parsedBuyNow.length > 0) {
+        const updatedBuyNow = parsedBuyNow.map((item) => {
+          const productDetails = products.find((product) => product.id === item.id);
+          return { ...item, ...productDetails };
+        });
+  
+        setCart(updatedBuyNow);
+  
+        // 🛑 ⏳ Agregar un pequeño delay antes de eliminar
+        setTimeout(() => {
+          sessionStorage.removeItem("buyNow");
+          console.log("Datos eliminados de sessionStorage después de procesar.");
+        }, 2000); // Esperar 2 segundos
+        return;
+      }
+    }
+  
+    // Si no hay "Comprar Ahora", cargar el carrito normal
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      const cartItems = JSON.parse(storedCart);
+  
+      const updatedCart = cartItems.map((item: any) => {
+        const productDetails = products.find((product) => product.id === item.id);
+
+        return { ...item, ...productDetails };
+      });
+  
+      setCart(updatedCart);
+    }
+  }, [products]);
+  
+  
+
+  // Calcular el total del pedido
+  useEffect(() => {
+    const total = cart.reduce((acc, item) => {
+      return acc + (item.precio * item.quantity); // Multiplicamos precio por cantidad
+    }, 0);
+    setOrderTotal(total); // Establecemos el total calculado
+  }, [cart]);  // Recalcular cuando el carrito cambie
+  
   return (
     <div className="p-6 max-w-4xl mx-auto grid grid-cols-3 gap-4">
       <div className="col-span-2">
@@ -186,7 +241,13 @@ const Checkout = () => {
                       placeholder="Nombre y Apellido"
                       type="text"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      onChange={(e) => {
+                        const regex = /^[a-zA-Z\s]*$/;
+
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, fullName: e.target.value });
+                        }
+                      }}
                     />
                   </div>
 
@@ -198,7 +259,14 @@ const Checkout = () => {
                       placeholder="Número de teléfono"
                       type="text"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) => {
+                        // Solo permitir números y el símbolo "+" al inicio para el código de país
+                        const regex = /^[\d\+\s]*$/;
+                        
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, phone: e.target.value });
+                        }
+                      }}
                     />
                   </div>
 
@@ -256,7 +324,14 @@ const Checkout = () => {
                       placeholder="Ciudad"
                       type="text"
                       value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      onChange={(e) => {
+                        // Solo permitir letras (y espacios)
+                        const regex = /^[a-zA-Z\s]*$/;
+
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, city: e.target.value });
+                        }
+                      }}
                     />
                   </div>
 
@@ -268,7 +343,14 @@ const Checkout = () => {
                       placeholder="Estado"
                       type="text"
                       value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      onChange={(e) => {
+                        // Solo permitir letras (y espacios)
+                        const regex = /^[a-zA-Z\s]*$/;
+
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, state: e.target.value });
+                        }
+                    ``}}
                     />
                   </div>
 
@@ -280,7 +362,14 @@ const Checkout = () => {
                       placeholder="Código Postal"
                       type="text"
                       value={formData.postalCode}
-                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                      onChange={(e) => {
+                        // Solo permitir hasta 7 números
+                        const regex = /^[0-9]{0,7}$/;
+
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, postalCode: e.target.value });
+                        }
+                      }}
                     />
                   </div>
 
@@ -402,61 +491,101 @@ const Checkout = () => {
       </div>
 
       {/* CONFIRMACIÓN DEL PEDIDO */}
-      <div className="col-span-1">
-        <Card className="p-4 sticky top-4">
-          <h2 className="text-lg font-semibold mb-2">Resumen del Pedido</h2>
-          <Table>
-            <TableHeader>
-              <TableColumn>Descripción</TableColumn>
-              <TableColumn>Monto</TableColumn>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>Productos:</TableCell>
-                <TableCell>US$7.99</TableCell>
+        <div className="col-span-1">
+          <Card className="p-4 sticky top-4">
+            <h2 className="text-lg font-semibold mb-2">Resumen del Pedido</h2>
+            <Table>
+              <TableHeader>
+                <TableColumn>Descripción</TableColumn>
+                <TableColumn>Monto</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {/* Mostrar productos */}
+                <TableRow>
+                  <TableCell>
+                    {cart
+                      .map((item) => item.nombre)
+                      .join(", ")} {/* Mostrar títulos separados por comas */}
+                  </TableCell>
+                  <TableCell>
+                    {cart.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2)} US$
+                    {/* Sumar precios de productos multiplicados por cantidad */}
+                  </TableCell>
+                </TableRow>
+
+                {/* Envío y manejo */}
+                <TableRow>
+                  <TableCell>Envío y manejo:</TableCell>
+                  <TableCell>US$46.06</TableCell>
+                </TableRow>
+
+                {/* Tasas de importación */}
+                <TableRow>
+                  <TableCell>Depósito de tasas de importación:</TableCell>
+                  <TableCell>US$25.72</TableCell>
+                </TableRow>
+
+                {/* Total */}
+                <TableRow className="font-bold">
+                  <TableCell>Total:</TableCell>
+                  <TableCell>
+                    {(
+                      cart.reduce((total, item) => total + item.precio * item.quantity, 0) +
+                      46.06 + // Envío y manejo
+                      25.72 // Tasas de importación
+                    ).toFixed(2)} US$
+                  </TableCell>
+                </TableRow>
+
+                {/* Total con descuento (si hay algún descuento aplicado) */}
+                <TableRow className="font-bold">
+                  <TableCell>Total con descuento:</TableCell>
+                  <TableCell>
+                    {(
+                      orderTotal + 46.06 + 25.72
+                    ).toFixed(2)} US$ {/* Total con descuento */}
+                  </TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell>Envío y manejo:</TableCell>
-                <TableCell>US$46.06</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Depósito de tasas de importación:</TableCell>
-                <TableCell>US$25.72</TableCell>
-              </TableRow>
-              <TableRow className="font-bold">
-                <TableCell>Total:</TableCell>
-                <TableCell>US$79.77</TableCell>
-              </TableRow>
-              <TableRow className="font-bold">
-                <TableCell>Total con descuento:</TableCell>
-                <TableCell>US${orderTotal.toFixed(2)}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+
             {/* BOTÓN DE CONFIRMACIÓN */}
             <Button className="mt-4 w-full">Realizar pedido</Button>
-        </Card>
+          </Card>
+        </div>
 
-        
 
-      </div>
 
-    {/* PRODUCTO EN CAMINO */}
-    <div className="col-span-1">
-        <Card className="p-4 mt-4 w-full">
-            <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Llega el 20 de marzo</h2>
-            <Button size="sm">Revisar pedido</Button>
-            </div>
-            <div className="mt-4 flex items-center">
-            <img alt="Leche" className="w-24 h-24 object-cover" src="https://th.bing.com/th/id/R.a0f5a3c7f8800f9be94f4f1bd770b0a9?rik=zNwoe3oZwNsqfQ&pid=ImgRaw&r=0" />
-            <div className="ml-4">
-                <h3 className="text-md font-semibold">Leche Pil</h3>
-                <p className="text-gray-600">Leche en caja pil para toda la familia.</p>
-            </div>
-            </div>
-        </Card>
-    </div>
+      {/* PRODUCTOS EN EL CARRITO */}
+<div className="col-span-1 flex flex-wrap gap-6 mt-4 w-full">
+  {cart.map((item) => {
+    return (
+      <Card
+        className="p-4 w-full sm:w-1/2 lg:w-1/3 min-w-[280px] flex flex-col justify-between"
+        key={item.id}
+      >
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Llega el 20 de marzo</h2>
+          <Button size="sm">Revisar pedido</Button>
+        </div>
+        <div className="mt-4 flex items-center">
+          <img
+            alt={item.nombre}  // Imagen dinámica
+            className="w-24 h-24 object-cover"
+            src={item.imagen}  // Imagen dinámica
+          />
+          <div className="ml-4">
+            <h3 className="text-md font-semibold">{item.nombre}</h3>  {/* Nombre dinámico */}
+            <p className="text-gray-600">{item.descripcion}</p>  {/* Descripción dinámica */}
+            <p className="text-gray-600">Cantidad: {item.quantity}</p>  {/* Cantidad dinámica */}
+          </div>
+        </div>
+      </Card>
+    );
+  })}
+</div>
+
+
 
 
     </div>
