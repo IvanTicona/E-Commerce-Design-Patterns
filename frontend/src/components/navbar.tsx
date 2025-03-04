@@ -3,11 +3,13 @@ import { Input } from "@heroui/input";
 import { Navbar as HeroUINavbar, NavbarItem } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
+import { Badge, Button } from "@heroui/react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
+import CartIcon from "@/icons/cartIcon";
 
 export const Navbar = () => {
   const searchInput = (
@@ -47,7 +49,7 @@ export const Navbar = () => {
         </div>
       </div>
 
-      <div className="lg:flex gap-4 justify-start">
+      <div className="lg:flex gap-4 justify-start items-center">
         {siteConfig.navItems.map((item) => (
           <NavbarItem key={item.href}>
             <Link
@@ -62,6 +64,11 @@ export const Navbar = () => {
             </Link>
           </NavbarItem>
         ))}
+        <Badge color="primary" content={30} size="md" onClick={() => {}}>
+          <Button isIconOnly className="bg-transparent">
+            <CartIcon />
+          </Button>
+        </Badge>
       </div>
     </HeroUINavbar>
   );

@@ -1,4 +1,15 @@
-export const productos = [
+export type Product = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  categoria: string;
+  imagen: string;
+  stock: number;
+  rating: number;
+};
+
+export const products: Product[] = [
   {
     id: 1,
     nombre: "Camiseta Deportiva",
@@ -8,7 +19,7 @@ export const productos = [
     categoria: "Ropa",
     imagen:
       "https://assets-es.imgfoot.com/media/cache/800x800/fc-barcelone-home-2013-2014.jpg",
-    stock: 50,
+    stock: 0,
     rating: 4.2,
   },
   {
@@ -58,5 +69,61 @@ export const productos = [
       "https://nivia.com.co/cdn/shop/files/Tenis_Ultra_Running_Azul_Nivia_Xbox_5.jpg?v=1697839355&width=1445",
     stock: 25,
     rating: 4.3,
+  },
+  {
+    id: 6,
+    nombre: "Cámara Deportiva",
+    descripcion:
+      "Cámara resistente al agua con grabación en 4K y estabilizador de imagen.",
+    precio: 199.99,
+    categoria: "Tecnología",
+    imagen: "https://sistema.langtecnologia.com.ar/img/qloud/3241/5684_1.jpg",
+    stock: 15,
+    rating: 4.8,
+  },
+  {
+    id: 7,
+    nombre: "Bicicleta de Montaña",
+    descripcion:
+      "Bicicleta todoterreno con cuadro de aluminio y frenos de disco hidráulicos.",
+    precio: 499.99,
+    categoria: "Deportes",
+    imagen: "https://irunabikes.com/wp-content/uploads/foto-1.jpg",
+    stock: 10,
+    rating: 4.9,
+  },
+  {
+    id: 8,
+    nombre: "Balón de Fútbol",
+    descripcion:
+      "Balón oficial de la FIFA para partidos de fútbol profesionales.",
+    precio: 29.99,
+    categoria: "Deportes",
+    imagen: "https://assets1.afa.com.ar/argen.jpg",
+    stock: 35,
+    rating: 4.6,
+  },
+  {
+    id: 9,
+    nombre: "Gafas de Sol",
+    descripcion:
+      "Gafas de sol polarizadas con protección UV y montura de aluminio.",
+    precio: 79.99,
+    categoria: "Accesorios",
+    imagen: "https://opticaval.es/wp-content/uploads/2023/03/190605407424.jpg",
+    stock: 45,
+    rating: 4.4,
+  },
+  {
+    id: 10,
+    nombre: "Mancuernas Ajustables",
+    descripcion:
+      "Set de mancuernas ajustables con discos de peso para entrenamientos en casa o el gimnasio.",
+    precio: 149.99,
+    categoria: "Deportes",
+    imagen:
+      "https://i5.walmartimages.cl/asr/8d2d0da6-5c52-4bd9-a674-870e7a7274cc.cbae6e1ec761152a529397fea3da18d5.jpeg?odnHeight=2000&odnWidth=2000&odnBg=ffffff",
+    stock: 5,
+    rating: 4.1,
   },
 ];
