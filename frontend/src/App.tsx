@@ -1,23 +1,44 @@
-import { Route, Routes } from "react-router-dom";
 
-import IndexPage from "@/pages/index";
-import DocsPage from "@/pages/docs";
-import PricingPage from "@/pages/pricing";
-import BlogPage from "@/pages/blog";
-import AboutPage from "@/pages/about";
-import CheckoutPage from "./pages/checkout";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import "animate.css";
+
+import LandingPage from "@/pages/landing";
+import CategoryPage from "@/pages/category";
+import OffersPage from "@/pages/offers";
+import ProductPage from "@/pages/product";
 
 function App() {
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route element={<IndexPage />} path="/" />
-      <Route element={<DocsPage />} path="/docs" />
-      <Route element={<PricingPage />} path="/pricing" />
-      <Route element={<BlogPage />} path="/blog" />
-      <Route element={<AboutPage />} path="/about" />
-      <Route element={<AboutPage />} path="/about" />
-      <Route element={<CheckoutPage />} path="/checkout" />
-    </Routes>
+    // <TransitionGroup>
+    //   <CSSTransition
+    //     key={location.key}
+    //     classNames={{
+    //       enter: "animate__animated animate__fadeIn",
+    //       exit: "animate__animated animate__fadeOut",
+    //     }}
+    //     timeout={500}
+    //   >
+        <Routes>
+          <Route element={<LandingPage />} path="/" />
+          <Route element={<CategoryPage />} path="/category" />
+          <Route element={<OffersPage />} path="/offers" />
+          <Route element={<ProductPage />} path="/product/:id" />
+          {/* ListadoProductos */}
+          {/* DetalleProducto */}
+          {/* CategoriasProducto */}
+          {/* ResultadosBusqueda */}
+          {/* ResumenCarrito */}
+          {/* CheckoutCarrito */}
+          {/* MetodoDePago */}
+          {/* DatosDePag */}
+          {/* ConfirmacionDePago */}
+          {/* Notificaciones */}
+        </Routes>
+    //   </CSSTransition>
+    // </TransitionGroup>
   );
 }
 
