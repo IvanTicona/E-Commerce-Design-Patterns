@@ -26,20 +26,21 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [quantityValid, setQuantityValid] = useState(false);
 
-  const navigate = useNavigate(); // Usamos useNavigate para redirigir
+  const navigate = useNavigate();
 
   const handleQuantityChange = (value: number) => {
     // Validación de la cantidad
     if (value < 1 || value > stock) {
-      setQuantityValid(true); // Marcamos como inválido si está fuera de rango
+      setQuantityValid(true);
     } else {
-      setQuantityValid(false); // Restablecemos la validez
+      setQuantityValid(false);
     }
-    setQuantity(value); // Actualizamos la cantidad
+    setQuantity(value);
   };
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
+
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
@@ -67,16 +68,12 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
     setCart(cartItems); // Actualiza el estado para que `useEffect` lo guarde correctamente
   };
 
-  
   const handleBuyNow = () => {
     const buyNowItem = [{ id, quantity }]; // Asegurar formato array
-  
+
     sessionStorage.setItem("buyNow", JSON.stringify(buyNowItem));
-    console.log("Guardado en sessionStorage:", buyNowItem); // Debug
     navigate("/checkout"); // Redirigir
   };
-  
-  
 
   return (
     <>
@@ -91,15 +88,14 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
         </Chip>
       )}
       <NumberInput
-        value={quantity} // Controlamos el valor
-        onValueChange={handleQuantityChange} // Cambia el valor cuando el usuario lo modifica
         errorMessage={"Cantidad no válida"}
-        isDisabled={stock === 0} // Deshabilitar si el stock es 0
-        isInvalid={quantityValid} // Mostrar error si la cantidad es inválida
+        isDisabled={stock === 0}
+        isInvalid={quantityValid}
         label="Cantidad"
         labelPlacement={"outside-left"}
-        maxValue={stock} // Máximo valor que puede tener
-        // Eliminamos minValue para que se pueda decrementar libremente hasta llegar a 1
+        value={quantity}
+        onValueChange={handleQuantityChange}
+        maxValue={stock}
       />
       <Button
         color="warning"

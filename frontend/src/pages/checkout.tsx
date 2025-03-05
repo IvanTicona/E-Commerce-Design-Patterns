@@ -22,13 +22,18 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
-
+import { useNavigate } from "react-router";
+import { useLocation } from "react-router";
+ 
 import { products } from "@/data/products";
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [addresses, setAddresses] = useState([
-    "Daniel Alejandro López Quinteros, Av. Saavedra Edificio Ibita No 1760, La Paz, Bolivia",
-    "Sebastian Nunez, Av. Saavedra Edificio Ibita No 1760, La Paz, Bolivia",
+    "Daniel Alejandro López Quinteros, 69807939, danilepez@gmail.com, Bolivia, Miraflores Av. Saavedra, Edificio Ibita No 1760, La Paz, Murillo, 15000",
+    "Sebastian Nunez, Av. Alexander No 518, La Paz, Bolivia",
   ]);
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -36,7 +41,8 @@ const Checkout = () => {
   const [cardHolder, setCardHolder] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
-  const [orderTotal, setOrderTotal] = useState(79.77);
+  const [orderTotal, setOrderTotal] = useState(0);
+  const [orderTotalWithDiscount, setOrderTotalWithDiscount] = useState(0);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponApplied, setCouponApplied] = useState(false);
 
@@ -47,8 +53,28 @@ const Checkout = () => {
 
   const [countries, setCountries] = useState<{ cca3: string; name: { common: string } }[]>([]); 
   const [cart, setCart] = useState<any[]>([]);
+  const [confirmedPayment, setConfirmedPayment] = useState<{ cardNumber: string; cardHolder: string; expiryDate: string } | null>(null);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null); 
 
+  const orderTotalWithoutDiscount = cart.reduce(
+    (acc, item) => acc + item.precio * item.quantity,
+    0
+  ) + 46.06 + 25.72;
   
+  useEffect(() => {
+    setOrderTotal(orderTotalWithoutDiscount);
+    setOrderTotalWithDiscount(orderTotalWithoutDiscount);
+  }, [cart]); 
+
+  // Aplicar cupón de descuento
+  const handleApplyCoupon = () => {
+    if (coupon.trim() !== "" && !couponApplied) {
+      const newTotalWithDiscount = Math.max(0, orderTotal - 10); // Aplica el descuento
+
+      setOrderTotalWithDiscount(newTotalWithDiscount);
+      setCouponApplied(true);
+    }
+  };
 
   // Cargar países desde la API
   useEffect(() => {
@@ -67,7 +93,7 @@ const Checkout = () => {
           return 0;
         });
   
-        setCountries(sortedCountries); // Guardamos los países ordenados en el estado
+        setCountries(sortedCountries);
       } catch (error) {
         alert("Error al obtener países: " + (error as any).message);
       }
@@ -76,13 +102,11 @@ const Checkout = () => {
     fetchCountries();
   }, []);
   
-
-  
-
   const [formData, setFormData] = useState({
-    country: '',
     fullName: '',
     phone: '',
+    email: '',
+    country: '',
     address1: '',
     address2: '',
     city: '',
@@ -91,30 +115,58 @@ const Checkout = () => {
   });
 
 
-  const handleApplyCoupon = () => {
-    if (coupon.trim() !== "" && !couponApplied) {
-      setOrderTotal((prevTotal) => Math.max(0, prevTotal - 10));
-      setCouponApplied(true);
-    }
-  };
-
   const handleAddAddress = () => {
-    const newAddress = `${formData.fullName}, ${formData.address1}, ${formData.address2}, ${formData.city}, ${formData.state}, ${formData.country}, ${formData.postalCode}`;
+
+    localStorage.setItem('addressDetails', JSON.stringify({
+      fullName: formData.fullName,
+      phone: formData.phone,
+      email: formData.email,
+      country: formData.country,
+      address1: formData.address1,
+      address2: formData.address2,
+      city: formData.city,
+      state: formData.state,
+      postalCode: formData.postalCode,
+    }));
+
+    const newAddress = `${formData.fullName}, ${formData.phone}, ${formData.country}, ${formData.address1}, ${formData.address2}, ${formData.city}, ${formData.state}, ${formData.postalCode}`;
 
     setAddresses([...addresses, newAddress]);
     setFormData({
       fullName: '',
       phone: '',
+      email: '',
+      country: '',
       address1: '',
       address2: '',
       city: '',
       state: '',
       postalCode: '',
-      country: '',
     });
   };
 
   const handleConfirmAddress = () => {
+    if (selectedAddressIndex !== null) {
+      const selectedAddress = addresses[selectedAddressIndex]; 
+
+      // Guardamos la dirección seleccionada en sessionStorage
+      sessionStorage.setItem('addressDetails', JSON.stringify({
+        fullName: selectedAddress.split(",")[0],
+        phone: selectedAddress.split(",")[1],
+        email: selectedAddress.split(",")[2],
+        country: selectedAddress.split(",")[3],
+        address1: selectedAddress.split(",")[4],
+        address2: selectedAddress.split(",")[5],
+        city: selectedAddress.split(",")[6],
+        state: selectedAddress.split(",")[7],
+        postalCode: selectedAddress.split(",")[8],
+      }));
+
+      alert("Dirección confirmada: " + selectedAddress.split(",")[4]);
+    } else {
+      alert("Por favor selecciona una dirección.");
+    }
+
     setConfirmedAddress(selectedAddress);
     setShowAddressSelection(false);
   };
@@ -124,35 +176,61 @@ const Checkout = () => {
     setConfirmedAddress('');
   };
 
+  const handleConfirmPayment = () => {
+    sessionStorage.setItem('paymentDetails', JSON.stringify({
+      //ocultar los primeros 12 dígitos de la tarjeta
+      cardNumber: `**** **** **** ${cardNumber.slice(-4)}`,
+      cardHolder: cardHolder,
+      expiryDate: expiryDate,
+    }));
+
+    setConfirmedPayment({
+      cardNumber,
+      cardHolder,
+      expiryDate,
+    });
+  };
+
+  const handleCancelPayment = () => {
+    setConfirmedPayment(null);
+  };
+
+  const handleConfirmProducts = () => {
+    // Guardar el carrito en sessionStorage\
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+    sessionStorage.setItem("orderTotal", JSON.stringify(orderTotal)); // Total sin descuento
+    sessionStorage.setItem("orderTotalWithDiscount", JSON.stringify(orderTotalWithDiscount)); // Total con descuento
+
+  }
   
 
+  //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
     const buyNowItem = sessionStorage.getItem("buyNow");
   
     if (buyNowItem) {
-      console.log("Datos en sessionStorage:", buyNowItem); // Debug
-  
       const parsedBuyNow = JSON.parse(buyNowItem);
   
       if (Array.isArray(parsedBuyNow) && parsedBuyNow.length > 0) {
         const updatedBuyNow = parsedBuyNow.map((item) => {
           const productDetails = products.find((product) => product.id === item.id);
+
           return { ...item, ...productDetails };
         });
   
         setCart(updatedBuyNow);
   
-        // 🛑 ⏳ Agregar un pequeño delay antes de eliminar
         setTimeout(() => {
           sessionStorage.removeItem("buyNow");
-          console.log("Datos eliminados de sessionStorage después de procesar.");
-        }, 2000); // Esperar 2 segundos
+        }, 2000); 
+
         return;
       }
     }
   
     // Si no hay "Comprar Ahora", cargar el carrito normal
     const storedCart = localStorage.getItem("cart");
+
     if (storedCart) {
       const cartItems = JSON.parse(storedCart);
   
@@ -168,16 +246,22 @@ const Checkout = () => {
   
   
 
-  // Calcular el total del pedido
+  
+
+  // Limpiar sessionStorage al cambiar de ruta, excepto "buyNow"
   useEffect(() => {
-    const total = cart.reduce((acc, item) => {
-      return acc + (item.precio * item.quantity); // Multiplicamos precio por cantidad
-    }, 0);
-    setOrderTotal(total); // Establecemos el total calculado
-  }, [cart]);  // Recalcular cuando el carrito cambie
+    const keysToKeep = ["buyNow"];
+
+    Object.keys(sessionStorage).forEach((key) => {
+      if (!keysToKeep.includes(key)) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  }, [location]);
+
   
   return (
-    <div className="p-6 max-w-4xl mx-auto grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mx-auto max-w-6xl">
       <div className="col-span-2">
         <h1 className="text-2xl font-bold mb-4">Finalizar Compra</h1>
         {/* SELECCIÓN DE DIRECCIÓN */}
@@ -187,8 +271,15 @@ const Checkout = () => {
           <>
             <h2 className="text-lg font-semibold mb-2">Selecciona una dirección de envío</h2>
             <RadioGroup
-              value={selectedAddress}
-              onChange={(e) => setSelectedAddress(e.target.value)}
+              value={selectedAddress} // Puedes usar el valor completo o el índice aquí
+              onChange={(e) => {
+                const value = e.target.value;
+                // Cuando seleccionas una dirección, guardamos tanto el índice como la dirección completa
+                const index = addresses.indexOf(value);
+
+                setSelectedAddressIndex(index);  
+                setSelectedAddress(value);       
+              }}
             >
               {addresses.map((address, index) => (
                 <div key={index}>
@@ -226,7 +317,7 @@ const Checkout = () => {
       </Card>
 
       {/* Modal para añadir nueva dirección */}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} scrollBehavior="inside">
+      <Modal isOpen={isOpen} scrollBehavior="inside" onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose: () => void) => (
             <>
@@ -265,6 +356,25 @@ const Checkout = () => {
                         
                         if (regex.test(e.target.value)) {
                           setFormData({ ...formData, phone: e.target.value });
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label htmlFor="email">Correo electrónico</label>
+                    <Input
+                      required
+                      id="email"
+                      placeholder="Correo electrónico"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => {
+                        //Permitir todo pero que contenga @ y al menos un punto
+                        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        
+                        if (regex.test(e.target.value)) {
+                          setFormData({ ...formData, email: e.target.value });
                         }
                       }}
                     />
@@ -396,14 +506,24 @@ const Checkout = () => {
         {/* MÉTODO DE PAGO */}
         <Card className="p-4 mb-4">
           <h2 className="text-lg font-semibold mb-2">Método de pago</h2>
-          <Select label="Método de pago" placeholder="Selecciona un método de pago"
+          <Select
+            label="Método de pago"
+            placeholder="Selecciona un método de pago"
             value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}>
-            <SelectItem key="credit" data-value="credit">Tarjeta de crédito</SelectItem>
-            <SelectItem key="paypal" data-value="paypal">PayPal</SelectItem>
+            onChange={(e) => {
+              setPaymentMethod(e.target.value);
+              setConfirmedPayment(null); // Restablece el estado cuando cambia el método
+            }}
+          >
+            <SelectItem key="credit" data-value="credit">
+              Tarjeta de crédito
+            </SelectItem>
+            <SelectItem key="paypal" data-value="paypal">
+              PayPal
+            </SelectItem>
           </Select>
 
-          {paymentMethod === "credit" && (
+          {paymentMethod === "credit" && !confirmedPayment && (
             <>
               <Input
                 className="mt-2"
@@ -420,7 +540,9 @@ const Checkout = () => {
                 className="mt-2"
                 placeholder="Nombre en la tarjeta"
                 value={cardHolder}
-                onChange={(e) => setCardHolder(e.target.value.replace(/[^a-zA-Z ]/g, ""))}
+                onChange={(e) =>
+                  setCardHolder(e.target.value.replace(/[^a-zA-Z ]/g, ""))
+                }
               />
               <div className="flex space-x-2 mt-2">
                 <Input
@@ -438,26 +560,63 @@ const Checkout = () => {
                   value={cvv}
                   onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
                 />
+              </div>
 
-                {/* Tarjeta invalida alerta */}
-                {cardNumber.length < 19 && cardNumber.length > 0 && (
-                  <Alert className="mt-2">Por favor, introduce un número de tarjeta válido</Alert>
-                )}
-                {/* Nombre invalido alerta */}
-                {cardHolder.trim() === "" && (
-                  <Alert className="mt-2">Por favor, introduce un nombre válido</Alert>
-                )}
-                {/* Fecha de expiración invalida alerta */}
-                {expiryDate.length < 5 && expiryDate.length > 0 && (
-                  <Alert className="mt-2">Por favor, introduce una fecha válida</Alert>
-                )}
-                {/* CVV invalido alerta */}
-                {cvv.length < 3 && cvv.length > 0 && (
-                  <Alert className="mt-2">Por favor, introduce un CVV válido</Alert>
-                )}
+              {/* Validaciones y alertas */}
+              {cardNumber.length < 19 && cardNumber.length > 0 && (
+                <Alert className="mt-2">
+                  Por favor, introduce un número de tarjeta válido
+                </Alert>
+              )}
+              {cardHolder.trim() === "" && (
+                <Alert className="mt-2">
+                  Por favor, introduce un nombre válido
+                </Alert>
+              )}
+              {expiryDate.length < 5 && expiryDate.length > 0 && (
+                <Alert className="mt-2">
+                  Por favor, introduce una fecha válida
+                </Alert>
+              )}
+              {cvv.length < 3 && cvv.length > 0 && (
+                <Alert className="mt-2">
+                  Por favor, introduce un CVV válido
+                </Alert>
+              )}
 
-                </div>
+              {/* Botón de Aceptar (se habilita solo si los datos son válidos) */}
+              <Button
+                className="mt-4"
+                isDisabled={
+                  cardNumber.length < 19 ||
+                  cardHolder.trim() === "" ||
+                  expiryDate.length < 5 ||
+                  cvv.length < 3
+                }
+                onClick={handleConfirmPayment}
+              >
+                Aceptar
+              </Button>
             </>
+          )}
+
+          {/* Mostrar tarjeta confirmada */}
+          {confirmedPayment && (
+            <div className="p-4 bg-gray-100 rounded-md mt-4 flex flex-col gap-2">
+              <h3 className="text-md font-semibold">Tarjeta Confirmada</h3>
+              <p className="text-gray-700">
+                <strong>Número:</strong> **** **** **** {cardNumber.slice(-4)}
+              </p>
+              <p className="text-gray-700">
+                <strong>Nombre:</strong> {cardHolder}
+              </p>
+              <p className="text-gray-700">
+                <strong>Expira:</strong> {expiryDate}
+              </p>
+              <Button className="mt-2" color="danger" onClick={handleCancelPayment}>
+                Cancelar
+              </Button>
+            </div>
           )}
 
           {/* Paypal seleccionado*/}
@@ -466,8 +625,10 @@ const Checkout = () => {
                 <Alert className="mt-2">PayPal no está disponible en tu región</Alert>
                 </>
             )}
+        </Card>
 
-          {!showCouponInput && (
+        <Card className="p-4 mb-4">
+        {!showCouponInput && (
             <Button className="mt-4" onClick={() => setShowCouponInput(true)}>Usar código promocional</Button>
           )}
 
@@ -482,10 +643,11 @@ const Checkout = () => {
               {couponApplied && <Alert className="mt-2">Cupón aplicado con éxito</Alert>}
             </div>
           )}
+
         </Card>
         
 
-        <Alert className="mt-4">
+        <Alert className="mt-8">
           Puedes rastrear tu envío y ver cualquier tarifa de importación aplicable antes de realizar tu pedido.
         </Alert>
       </div>
@@ -516,13 +678,13 @@ const Checkout = () => {
                 {/* Envío y manejo */}
                 <TableRow>
                   <TableCell>Envío y manejo:</TableCell>
-                  <TableCell>US$46.06</TableCell>
+                  <TableCell>46.06US$</TableCell>
                 </TableRow>
 
                 {/* Tasas de importación */}
                 <TableRow>
                   <TableCell>Depósito de tasas de importación:</TableCell>
-                  <TableCell>US$25.72</TableCell>
+                  <TableCell>25.72US$</TableCell>
                 </TableRow>
 
                 {/* Total */}
@@ -530,9 +692,7 @@ const Checkout = () => {
                   <TableCell>Total:</TableCell>
                   <TableCell>
                     {(
-                      cart.reduce((total, item) => total + item.precio * item.quantity, 0) +
-                      46.06 + // Envío y manejo
-                      25.72 // Tasas de importación
+                      orderTotal 
                     ).toFixed(2)} US$
                   </TableCell>
                 </TableRow>
@@ -542,7 +702,7 @@ const Checkout = () => {
                   <TableCell>Total con descuento:</TableCell>
                   <TableCell>
                     {(
-                      orderTotal + 46.06 + 25.72
+                      orderTotalWithDiscount
                     ).toFixed(2)} US$ {/* Total con descuento */}
                   </TableCell>
               </TableRow>
@@ -550,44 +710,43 @@ const Checkout = () => {
             </Table>
 
             {/* BOTÓN DE CONFIRMACIÓN */}
-            <Button className="mt-4 w-full">Realizar pedido</Button>
+            <Button className="mt-4 w-full" onPress={() => {
+              navigate(`/successful-purchase`)
+              handleConfirmProducts()
+            }}>Realizar pedido</Button>
           </Card>
         </div>
 
 
 
       {/* PRODUCTOS EN EL CARRITO */}
-<div className="col-span-1 flex flex-wrap gap-6 mt-4 w-full">
-  {cart.map((item) => {
-    return (
-      <Card
-        className="p-4 w-full sm:w-1/2 lg:w-1/3 min-w-[280px] flex flex-col justify-between"
-        key={item.id}
-      >
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Llega el 20 de marzo</h2>
-          <Button size="sm">Revisar pedido</Button>
-        </div>
-        <div className="mt-4 flex items-center">
-          <img
-            alt={item.nombre}  // Imagen dinámica
-            className="w-24 h-24 object-cover"
-            src={item.imagen}  // Imagen dinámica
-          />
-          <div className="ml-4">
-            <h3 className="text-md font-semibold">{item.nombre}</h3>  {/* Nombre dinámico */}
-            <p className="text-gray-600">{item.descripcion}</p>  {/* Descripción dinámica */}
-            <p className="text-gray-600">Cantidad: {item.quantity}</p>  {/* Cantidad dinámica */}
-          </div>
-        </div>
-      </Card>
-    );
-  })}
-</div>
-
-
-
-
+      <div className="col-span-2 lg:col-span-2 flex flex-wrap justify-center gap-8">
+        {cart.map((item) => {
+          return (
+            <Card
+              key={item.id}
+              className="p-6 w-full sm:w-1/2 lg:w-1/3 min-w-[760px] flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Llega el {item.arrivalDate}</h2>
+                <Button size="sm" onPress={() => navigate(`/product/${item.id}`)}>Revisar pedido</Button>
+              </div>
+              <div className="mt-4 flex items-center">
+                <img
+                  alt={item.nombre}  
+                  className="w-24 h-24 object-cover"
+                  src={item.imagen}  
+                />
+                <div className="ml-4">
+                  <h3 className="text-md font-semibold">{item.nombre}</h3>
+                  <p className="text-gray-600">{item.descripcion}</p>
+                  <p className="text-gray-600">Cantidad: {item.quantity}</p>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };

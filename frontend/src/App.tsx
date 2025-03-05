@@ -8,6 +8,7 @@ import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
 import CheckoutPage from "@/pages/checkout";
+import SuccessfulPurchasePage from "@/pages/successful-purchase";
 
 function App() {
   const location = useLocation();
@@ -28,6 +29,7 @@ function App() {
           <Route element={<OffersPage />} path="/offers" />
           <Route element={<ProductPage />} path="/product/:id" />
           <Route element={<CheckoutPage />} path="/checkout" />
+          <Route element={<SuccessfulPurchasePage/>} path="/successful-purchase" />
           {/* ListadoProductos */}
           {/* DetalleProducto */}
           {/* CategoriasProducto */}
