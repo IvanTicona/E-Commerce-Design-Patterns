@@ -71,6 +71,7 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   const handleBuyNow = () => {
     const buyNowItem = [{ id, quantity }]; // Asegurar formato array
 
+    sessionStorage.removeItem("cart");
     sessionStorage.setItem("buyNow", JSON.stringify(buyNowItem));
     navigate("/checkout"); // Redirigir
   };

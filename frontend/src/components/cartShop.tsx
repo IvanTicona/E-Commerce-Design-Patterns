@@ -25,6 +25,7 @@ const CartShop = () => {
   };
 
   const handleCheckout = () => {
+    sessionStorage.removeItem("buyNow");
     navigate("/checkout"); // Redirige a la página de checkout
   };
 

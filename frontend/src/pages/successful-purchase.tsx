@@ -67,6 +67,17 @@ const SuccessfulPurchase = () => {
       });
   };
 
+  const handleContinueShopping = () => {
+    sessionStorage.removeItem("addressDetails");
+    sessionStorage.removeItem("paymentDetails");
+    sessionStorage.removeItem("cart");
+    sessionStorage.removeItem("orderTotal");
+    sessionStorage.removeItem("orderTotalWithDiscount");
+
+    navigate("/");
+  }
+    
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md text-center w-full max-w-2xl">
@@ -80,9 +91,9 @@ const SuccessfulPurchase = () => {
           {cart.map((item: { nombre: string; quantity: number; precio: number; imagen: string }, index: number) => (
             <div key={index} className="flex justify-center items-center space-x-6 bg-gray-50 p-4 rounded-lg shadow-md">
               <img
-                src={item.imagen}
                 alt={item.nombre}
                 className="w-24 h-24 object-cover rounded-md"
+                src={item.imagen}
               />
               <div className="text-left">
                 <p><strong>Producto:</strong> {item.nombre}</p>
@@ -95,18 +106,18 @@ const SuccessfulPurchase = () => {
 
         {/* Botones centrados */}
         <div className="flex justify-center gap-6 mt-6">
-          <button
+          <Button
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded"
-            onClick={() => navigate("/")}
+            onClick={handleContinueShopping}
           >
             Continuar Comprando
-          </button>
-          <button
+          </Button>
+          <Button
             className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded"
             onClick={handleSendInvoice}
           >
             Enviar Factura a mi Correo
-          </button>
+          </Button>
         </div>
       </div>
     </div>

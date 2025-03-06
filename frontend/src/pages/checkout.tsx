@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -31,10 +32,12 @@ const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [addresses, setAddresses] = useState([
-    "Daniel Alejandro López Quinteros, 69807939, danilepez@gmail.com, Bolivia, Miraflores Av. Saavedra, Edificio Ibita No 1760, La Paz, Murillo, 15000",
-    "Sebastian Nunez, Av. Alexander No 518, La Paz, Bolivia",
-  ]);
+  const [addresses, setAddresses] = useState<string[]>(
+    JSON.parse(localStorage.getItem("addressDetails") || "[]").map((address: any) =>
+      `${address.fullName}, ${address.phone}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`
+    )
+  );
+
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -116,8 +119,7 @@ const Checkout = () => {
 
 
   const handleAddAddress = () => {
-
-    localStorage.setItem('addressDetails', JSON.stringify({
+    const newAddress = {
       fullName: formData.fullName,
       phone: formData.phone,
       email: formData.email,
@@ -127,11 +129,28 @@ const Checkout = () => {
       city: formData.city,
       state: formData.state,
       postalCode: formData.postalCode,
-    }));
+    };
+  
+    // Obtener las direcciones existentes del localStorage
+    const existingAddresses = JSON.parse(localStorage.getItem('addressDetails') || '[]');
+    console.log(existingAddresses);
+  
+    // Agregar la nueva dirección al arreglo de direcciones
+    const updatedAddresses = [...existingAddresses, newAddress];
+  
+    // Guardar las direcciones actualizadas en localStorage
+    localStorage.setItem('addressDetails', JSON.stringify(updatedAddresses));
+  
 
-    const newAddress = `${formData.fullName}, ${formData.phone}, ${formData.country}, ${formData.address1}, ${formData.address2}, ${formData.city}, ${formData.state}, ${formData.postalCode}`;
+    const transformedAddresses = updatedAddresses.map((address: any) => {
+      return `${address.fullName}, ${address.phone}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`;
+    });
 
-    setAddresses([...addresses, newAddress]);
+
+    // Actualizar el estado con las nuevas direcciones
+    setAddresses(transformedAddresses);
+  
+    // Limpiar el formulario
     setFormData({
       fullName: '',
       phone: '',
@@ -161,12 +180,7 @@ const Checkout = () => {
         state: selectedAddress.split(",")[7],
         postalCode: selectedAddress.split(",")[8],
       }));
-
-      alert("Dirección confirmada: " + selectedAddress.split(",")[4]);
-    } else {
-      alert("Por favor selecciona una dirección.");
     }
-
     setConfirmedAddress(selectedAddress);
     setShowAddressSelection(false);
   };
@@ -175,6 +189,20 @@ const Checkout = () => {
     setShowAddressSelection(true);
     setConfirmedAddress('');
   };
+  
+  const handleDeleteAddress = (index: number) => {
+    const updateAddresses = JSON.parse(localStorage.getItem('addressDetails') || '[]');
+
+    updateAddresses.splice(index, 1);
+    localStorage.setItem('addressDetails', JSON.stringify(updateAddresses));
+    const transformedAddresses = updateAddresses.map((address: any) => {
+      return `${address.fullName}, ${address.phone}, ${address.email}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`;
+    });
+
+    setAddresses(transformedAddresses);
+  };
+  
+  
 
   const handleConfirmPayment = () => {
     sessionStorage.setItem('paymentDetails', JSON.stringify({
@@ -198,8 +226,8 @@ const Checkout = () => {
   const handleConfirmProducts = () => {
     // Guardar el carrito en sessionStorage\
     sessionStorage.setItem('cart', JSON.stringify(cart));
-    sessionStorage.setItem("orderTotal", JSON.stringify(orderTotal)); // Total sin descuento
-    sessionStorage.setItem("orderTotalWithDiscount", JSON.stringify(orderTotalWithDiscount)); // Total con descuento
+    sessionStorage.setItem("orderTotal", JSON.stringify(orderTotal)); 
+    sessionStorage.setItem("orderTotalWithDiscount", JSON.stringify(orderTotalWithDiscount)); 
 
   }
   
@@ -218,11 +246,7 @@ const Checkout = () => {
           return { ...item, ...productDetails };
         });
   
-        setCart(updatedBuyNow);
-  
-        setTimeout(() => {
-          sessionStorage.removeItem("buyNow");
-        }, 2000); 
+        setCart(updatedBuyNow); 
 
         return;
       }
@@ -246,18 +270,7 @@ const Checkout = () => {
   
   
 
-  
 
-  // Limpiar sessionStorage al cambiar de ruta, excepto "buyNow"
-  useEffect(() => {
-    const keysToKeep = ["buyNow"];
-
-    Object.keys(sessionStorage).forEach((key) => {
-      if (!keysToKeep.includes(key)) {
-        sessionStorage.removeItem(key);
-      }
-    });
-  }, [location]);
 
   
   return (
@@ -271,21 +284,26 @@ const Checkout = () => {
           <>
             <h2 className="text-lg font-semibold mb-2">Selecciona una dirección de envío</h2>
             <RadioGroup
-              value={selectedAddress} // Puedes usar el valor completo o el índice aquí
+              value={selectedAddress}
               onChange={(e) => {
                 const value = e.target.value;
-                // Cuando seleccionas una dirección, guardamos tanto el índice como la dirección completa
                 const index = addresses.indexOf(value);
 
-                setSelectedAddressIndex(index);  
-                setSelectedAddress(value);       
+                setSelectedAddressIndex(index);
+                setSelectedAddress(value);
               }}
             >
               {addresses.map((address, index) => (
-                <div key={index}>
-                  <Radio value={address}>
+                <div key={index} className="flex items-center justify-between p-2 border rounded-lg">
+                  <Radio value={address} className="flex-1">
                     <span>{address}</span>
                   </Radio>
+                  <button
+                    className="ml-2 text-red-500 hover:text-red-700"
+                    onClick={() => handleDeleteAddress(index)}
+                  >
+                    <Trash size={20} />
+                  </button>
                 </div>
               ))}
             </RadioGroup>
@@ -369,13 +387,17 @@ const Checkout = () => {
                       placeholder="Correo electrónico"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => {
-                        //Permitir todo pero que contenga @ y al menos un punto
-                        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        
-                        if (regex.test(e.target.value)) {
-                          setFormData({ ...formData, email: e.target.value });
+                      onBlur={(e) => {
+                        const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+                        if (!regex.test(e.target.value)) {
+                          <Alert className="mt-2">
+                            Por favor, introduce un correo electrónico válido
+                          </Alert>
                         }
+                      }}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value }); 
                       }}
                     />
                   </div>
@@ -712,7 +734,7 @@ const Checkout = () => {
             {/* BOTÓN DE CONFIRMACIÓN */}
             <Button className="mt-4 w-full" onPress={() => {
               navigate(`/successful-purchase`)
-              handleConfirmProducts()
+              handleConfirmProducts();
             }}>Realizar pedido</Button>
           </Card>
         </div>
