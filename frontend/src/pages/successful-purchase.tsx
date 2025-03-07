@@ -1,6 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { Card, Button } from "@heroui/react";
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import emailjs from "emailjs-com";
 
@@ -63,16 +61,18 @@ const SuccessfulPurchase = () => {
 
       setTimeout(() => {
         localStorage.removeItem("cart");
+        localStorage.removeItem("isQuickBuy")
         sessionStorage.removeItem("addressDetails");
         sessionStorage.removeItem("paymentDetails");
         sessionStorage.removeItem("orderTotal");
         sessionStorage.removeItem("orderTotalWithDiscount");
         navigate("/");
-      }, 10000);
+      }, 8000);
   };
 
   const handleContinueShopping = () => {
     localStorage.removeItem("cart");
+    localStorage.removeItem("isQuickBuy")
     sessionStorage.removeItem("addressDetails");
     sessionStorage.removeItem("paymentDetails");
     sessionStorage.removeItem("orderTotal");

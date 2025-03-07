@@ -58,6 +58,9 @@ const Checkout = () => {
   const [confirmedPayment, setConfirmedPayment] = useState<{ cardNumber: string; cardHolder: string; expiryDate: string } | null>(null);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null); 
 
+  const [isAddresFilled, setAddresFilled] = useState(false);
+  const [isPaymentFilled, setPaymentFilled] = useState(false);
+
   const orderTotalWithoutDiscount = cart.reduce(
     (acc, item) => acc + item.precio * item.quantity,
     0
@@ -183,6 +186,7 @@ const Checkout = () => {
     }
     setConfirmedAddress(selectedAddress);
     setShowAddressSelection(false);
+    setAddresFilled(true);
   };
 
   const handleChangeAddress = () => {
@@ -217,6 +221,7 @@ const Checkout = () => {
       cardHolder,
       expiryDate,
     });
+    setPaymentFilled(true);
   };
 
   const handleCancelPayment = () => {
@@ -234,7 +239,7 @@ const Checkout = () => {
 
   //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
-    if (!localStorage.getItem("cart")) {
+    if ((!localStorage.getItem("cart") || localStorage.getItem("cart")?.length == 2) && !localStorage.getItem("isQuickBuy")) {
       navigate("/");
     }
 
@@ -734,10 +739,18 @@ const Checkout = () => {
             </Table>
 
             {/* BOTÓN DE CONFIRMACIÓN */}
-            <Button className="mt-4 w-full" onPress={() => {
-              navigate(`/successful-purchase`)
-              handleConfirmProducts();
-            }}>Realizar pedido</Button>
+            <Button 
+            className="mt-4 w-full" 
+            onPress={() => {
+              if (isAddresFilled && isPaymentFilled) {
+                navigate(`/successful-purchase`)
+                handleConfirmProducts();
+              } else {
+                alert('Por favor, llene los datos requeridos')
+              }
+            }}>
+              Realizar pedido
+              </Button>
           </Card>
         </div>
 
