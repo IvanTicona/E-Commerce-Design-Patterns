@@ -28,9 +28,7 @@ const CategoryPage = () => {
       : products.filter((product) => product.categoria === selectedCategory);
 
   const handleDetails = (product: Product) => {
-    setTimeout(() => {
-      navigate(`/product/${product.id}`);
-    }, 300);
+    navigate(`/product/${product.id}`);
   };
 
   return (

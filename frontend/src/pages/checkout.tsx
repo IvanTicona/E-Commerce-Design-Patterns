@@ -234,6 +234,10 @@ const Checkout = () => {
 
   //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
+    if (cart.length == 0|| cart === null) {
+      navigate("/");
+    }
+
     const buyNowItem = sessionStorage.getItem("buyNow");
   
     if (buyNowItem) {
@@ -268,9 +272,7 @@ const Checkout = () => {
     }
   }, [products]);
   
-  
-
-
+      
 
   
   return (

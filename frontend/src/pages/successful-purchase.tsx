@@ -65,6 +65,24 @@ const SuccessfulPurchase = () => {
       .catch((error) => {
         console.error("Error al enviar correo:", error);
       });
+
+      setTimeout(() => {
+        localStorage.removeItem("cart");
+        sessionStorage.removeItem("addressDetails");
+        sessionStorage.removeItem("paymentDetails");
+        sessionStorage.removeItem("orderTotal");
+        sessionStorage.removeItem("orderTotalWithDiscount");
+        navigate("/");
+      }, 10000);
+  };
+
+  const handleContinueShopping = () => {
+    localStorage.removeItem("cart");
+    sessionStorage.removeItem("addressDetails");
+    sessionStorage.removeItem("paymentDetails");
+    sessionStorage.removeItem("orderTotal");
+    sessionStorage.removeItem("orderTotalWithDiscount");
+    navigate("/");
   };
 
   return (
@@ -80,9 +98,9 @@ const SuccessfulPurchase = () => {
           {cart.map((item: { nombre: string; quantity: number; precio: number; imagen: string }, index: number) => (
             <div key={index} className="flex justify-center items-center space-x-6 bg-gray-50 p-4 rounded-lg shadow-md">
               <img
-                src={item.imagen}
                 alt={item.nombre}
                 className="w-24 h-24 object-cover rounded-md"
+                src={item.imagen}
               />
               <div className="text-left">
                 <p><strong>Producto:</strong> {item.nombre}</p>
@@ -97,7 +115,7 @@ const SuccessfulPurchase = () => {
         <div className="flex justify-center gap-6 mt-6">
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded"
-            onClick={() => navigate("/")}
+            onClick={handleContinueShopping}
           >
             Continuar Comprando
           </button>
