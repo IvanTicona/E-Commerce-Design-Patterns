@@ -234,7 +234,7 @@ const Checkout = () => {
 
   //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
-    if (cart.length == 0|| cart === null) {
+    if (!localStorage.getItem("cart")) {
       navigate("/");
     }
 
