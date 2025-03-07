@@ -30,7 +30,6 @@ import { products } from "@/data/products";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [addresses, setAddresses] = useState<string[]>(
     JSON.parse(localStorage.getItem("addressDetails") || "[]").map((address: any) =>
@@ -143,7 +142,7 @@ const Checkout = () => {
   
 
     const transformedAddresses = updatedAddresses.map((address: any) => {
-      return `${address.fullName}, ${address.phone}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`;
+      return `${address.fullName}, ${address.phone}, ${address.email}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`;
     });
 
 
@@ -167,6 +166,7 @@ const Checkout = () => {
   const handleConfirmAddress = () => {
     if (selectedAddressIndex !== null) {
       const selectedAddress = addresses[selectedAddressIndex]; 
+      console.log(selectedAddress);
 
       // Guardamos la dirección seleccionada en sessionStorage
       sessionStorage.setItem('addressDetails', JSON.stringify({
