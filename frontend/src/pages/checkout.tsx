@@ -33,7 +33,7 @@ const Checkout = () => {
 
   const [addresses, setAddresses] = useState<string[]>(
     JSON.parse(localStorage.getItem("addressDetails") || "[]").map((address: any) =>
-      `${address.fullName}, ${address.phone}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`
+      `${address.fullName}, ${address.phone}, ${address.email}, ${address.country}, ${address.address1}, ${address.address2}, ${address.city}, ${address.state}, ${address.postalCode}`
     )
   );
 

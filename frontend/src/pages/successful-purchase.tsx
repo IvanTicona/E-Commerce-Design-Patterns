@@ -9,14 +9,14 @@ const SuccessfulPurchase = () => {
   const addressDetails = JSON.parse(sessionStorage.getItem("addressDetails") || "{}");
   const paymentDetails = JSON.parse(sessionStorage.getItem("paymentDetails") || "{}");
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  const orderTotal = parseFloat(sessionStorage.getItem("orderTotal") || "0").toFixed(2);
-  const orderTotalWithDiscount = parseFloat(sessionStorage.getItem("orderTotalWithDiscount") || "0").toFixed(2);
+  const orderTotal = parseFloat(sessionStorage.getItem("orderTotal") || "0");
+  const orderTotalWithDiscount = parseFloat(sessionStorage.getItem("orderTotalWithDiscount") || "0");
 
   const cartItems = () => {
     let str = "";
 
     cart.map((item: { nombre: string; quantity: number; precio: number }) => {
-      str=`<div style="margin-bottom: 10px;">
+      str += `<div style="margin-bottom: 10px;">
         <p><strong>Producto:</strong> ${item.nombre}</p>
         <p><strong>Cantidad:</strong> ${item.quantity}</p>
         <p><strong>Precio Unitario:</strong> $${item.precio.toFixed(2)}</p>
@@ -48,6 +48,7 @@ const SuccessfulPurchase = () => {
       cardNumber: paymentDetails.cardNumber,
       email: addressDetails.email,
     };
+    console.log(templateParams.products_list);
     
   
     emailjs
@@ -66,33 +67,22 @@ const SuccessfulPurchase = () => {
       });
   };
 
-  const handleContinueShopping = () => {
-    sessionStorage.removeItem("addressDetails");
-    sessionStorage.removeItem("paymentDetails");
-    localStorage.removeItem("cart");
-    sessionStorage.removeItem("orderTotal");
-    sessionStorage.removeItem("orderTotalWithDiscount");
-
-    navigate("/");
-  }
-    
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md text-center w-full max-w-2xl">
         <h2 className="text-2xl font-semibold text-green-600">¡Compra Exitosa! 🎉</h2>
         <p className="mt-4 text-gray-600">Gracias por tu compra, {addressDetails?.fullName}. Tu pedido ha sido procesado con éxito.</p>
-        <p className="text-lg font-bold mt-2">Total pagado: ${orderTotalWithDiscount}</p>
-        <p className="text-sm text-gray-500">(Precio original: ${orderTotal})</p>
+        <p className="text-lg font-bold mt-2">Total pagado: ${orderTotalWithDiscount.toFixed(2)}</p>
+        <p className="text-sm text-gray-500">(Precio original: ${orderTotal.toFixed(2)})</p>
 
         {/* Mostrar productos */}
         <div className="mt-6 space-y-6">
           {cart.map((item: { nombre: string; quantity: number; precio: number; imagen: string }, index: number) => (
             <div key={index} className="flex justify-center items-center space-x-6 bg-gray-50 p-4 rounded-lg shadow-md">
               <img
+                src={item.imagen}
                 alt={item.nombre}
                 className="w-24 h-24 object-cover rounded-md"
-                src={item.imagen}
               />
               <div className="text-left">
                 <p><strong>Producto:</strong> {item.nombre}</p>
@@ -105,18 +95,18 @@ const SuccessfulPurchase = () => {
 
         {/* Botones centrados */}
         <div className="flex justify-center gap-6 mt-6">
-          <Button
+          <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded"
-            onClick={handleContinueShopping}
+            onClick={() => navigate("/")}
           >
             Continuar Comprando
-          </Button>
-          <Button
+          </button>
+          <button
             className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded"
             onClick={handleSendInvoice}
           >
             Enviar Factura a mi Correo
-          </Button>
+          </button>
         </div>
       </div>
     </div>
