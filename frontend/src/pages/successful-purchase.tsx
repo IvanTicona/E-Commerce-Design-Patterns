@@ -9,18 +9,13 @@ const SuccessfulPurchase = () => {
   const addressDetails = JSON.parse(sessionStorage.getItem("addressDetails") || "{}");
   const paymentDetails = JSON.parse(sessionStorage.getItem("paymentDetails") || "{}");
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  const orderTotal = parseFloat(sessionStorage.getItem("orderTotal") || "0");
-  const orderTotalWithDiscount = parseFloat(sessionStorage.getItem("orderTotalWithDiscount") || "0");
+  const orderTotal = parseFloat(sessionStorage.getItem("orderTotal") || "0").toFixed(2);
+  const orderTotalWithDiscount = parseFloat(sessionStorage.getItem("orderTotalWithDiscount") || "0").toFixed(2);
 
   const cartItems = () => {
     let str = "";
-
     cart.map((item: { nombre: string; quantity: number; precio: number }) => {
-      str += `<div style="margin-bottom: 10px;">
-        <p><strong>Producto:</strong> ${item.nombre}</p>
-        <p><strong>Cantidad:</strong> ${item.quantity}</p>
-        <p><strong>Precio Unitario:</strong> $${item.precio.toFixed(2)}</p>
-      </div>`;
+      str += `Producto: ${item.nombre}\nCantidad: ${item.quantity}\nPrecio Unitario: $${item.precio.toFixed(2)}\n\n`
     });
     return str;
   };
@@ -36,8 +31,8 @@ const SuccessfulPurchase = () => {
     const templateParams = {
       user_name: addressDetails.fullName,
       products_list: cartItems(),
-      total_price: sessionStorage.getItem("orderTotal"),
-      total_discounted: sessionStorage.getItem("orderTotalWithDiscount"),
+      total_price: orderTotal,
+      total_discounted: orderTotalWithDiscount,
       full_name: addressDetails.fullName,
       address1: addressDetails.address1,
       address2: addressDetails.address2 || "",
@@ -90,8 +85,8 @@ const SuccessfulPurchase = () => {
       <div className="bg-white p-8 rounded-lg shadow-md text-center w-full max-w-2xl">
         <h2 className="text-2xl font-semibold text-green-600">¡Compra Exitosa! 🎉</h2>
         <p className="mt-4 text-gray-600">Gracias por tu compra, {addressDetails?.fullName}. Tu pedido ha sido procesado con éxito.</p>
-        <p className="text-lg font-bold mt-2">Total pagado: ${orderTotalWithDiscount.toFixed(2)}</p>
-        <p className="text-sm text-gray-500">(Precio original: ${orderTotal.toFixed(2)})</p>
+        <p className="text-lg font-bold mt-2">Total pagado: ${orderTotalWithDiscount}</p>
+        <p className="text-sm text-gray-500">(Precio original: ${orderTotal})</p>
 
         {/* Mostrar productos */}
         <div className="mt-6 space-y-6">
