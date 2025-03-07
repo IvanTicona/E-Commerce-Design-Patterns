@@ -53,6 +53,8 @@ const CartShop = () => {
   // Inicializamos el carrito desde localStorage
   const [cart, setCart] = React.useState<{ id: number; quantity: number }[]>(getCartFromStorage);
 
+  const isCartEmpty = !localStorage.getItem("cart") || JSON.parse(localStorage.getItem("cart") || "[]").length === 0;
+
   return (
     <>
       <Badge color="primary" content={cart.length} size="md" onClick={handleOpen}>
@@ -119,7 +121,11 @@ const CartShop = () => {
                 <Button color="warning" variant="light" onPress={onClose}>
                   Continuar
                 </Button>
-                <Button color="primary" onPress={handleCheckout}>
+                <Button
+                  color="primary"
+                  isDisabled={isCartEmpty}
+                  onPress={handleCheckout}
+                >
                   Checkout
                 </Button>
               </ModalFooter>
