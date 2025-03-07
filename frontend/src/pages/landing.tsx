@@ -37,7 +37,7 @@ const LandingPage = () => {
             </CardBody>
             <CardFooter className="text-small justify-between">
               <b>{item.nombre}</b>
-              <p className="text-default-500">{item.precio}</p>
+              <p className="text-default-500">Bs. {item.precio}</p>
             </CardFooter>
           </Card>
         ))}
