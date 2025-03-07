@@ -225,7 +225,7 @@ const Checkout = () => {
 
   const handleConfirmProducts = () => {
     // Guardar el carrito en sessionStorage\
-    sessionStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('cart', JSON.stringify(cart));
     sessionStorage.setItem("orderTotal", JSON.stringify(orderTotal)); 
     sessionStorage.setItem("orderTotalWithDiscount", JSON.stringify(orderTotalWithDiscount)); 
 

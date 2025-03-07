@@ -8,7 +8,7 @@ const SuccessfulPurchase = () => {
   const navigate = useNavigate();
   const addressDetails = JSON.parse(sessionStorage.getItem("addressDetails") || "{}");
   const paymentDetails = JSON.parse(sessionStorage.getItem("paymentDetails") || "{}");
-  const cart = JSON.parse(sessionStorage.getItem("cart") || "[]");
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const orderTotal = parseFloat(sessionStorage.getItem("orderTotal") || "0");
   const orderTotalWithDiscount = parseFloat(sessionStorage.getItem("orderTotalWithDiscount") || "0");
 
@@ -70,7 +70,7 @@ const SuccessfulPurchase = () => {
   const handleContinueShopping = () => {
     sessionStorage.removeItem("addressDetails");
     sessionStorage.removeItem("paymentDetails");
-    sessionStorage.removeItem("cart");
+    localStorage.removeItem("cart");
     sessionStorage.removeItem("orderTotal");
     sessionStorage.removeItem("orderTotalWithDiscount");
 
