@@ -60,11 +60,14 @@ const Checkout = () => {
 
   const [isAddresFilled, setAddresFilled] = useState(false);
   const [isPaymentFilled, setPaymentFilled] = useState(false);
-
-  const orderTotalWithoutDiscount = cart.reduce(
-    (acc, item) => acc + item.precio * item.quantity,
-    0
-  ) + 46.06 + 25.72;
+  
+  
+  const orderTotalWithoutDiscount = cart.reduce((acc, item) => {
+    // Aplicar descuento si el producto tiene descuento
+    const precioFinal = item.descuento > 0 ? item.precio * (1 - item.descuento) : item.precio;
+    return acc + precioFinal * item.quantity;
+  }, 0) + 46.06 + 25.72;
+  
   
   useEffect(() => {
     setOrderTotal(orderTotalWithoutDiscount);
@@ -693,16 +696,17 @@ const Checkout = () => {
               <TableBody>
                 {/* Mostrar productos */}
                 <TableRow>
-                  <TableCell>
-                    {cart
-                      .map((item) => item.nombre)
-                      .join(", ")} {/* Mostrar títulos separados por comas */}
-                  </TableCell>
-                  <TableCell>
-                    {cart.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2)} US$
-                    {/* Sumar precios de productos multiplicados por cantidad */}
-                  </TableCell>
-                </TableRow>
+                    <TableCell>
+                      {cart.map((item) => item.nombre).join(", ")}
+                    </TableCell>
+                    <TableCell>
+                      {cart.reduce((total, item) => {
+                        // Aplicar descuento si el producto tiene
+                        const precioFinal = item.descuento > 0 ? item.precio * (1 - item.descuento) : item.precio;
+                        return total + precioFinal * item.quantity;
+                      }, 0).toFixed(2)} US$
+                    </TableCell>
+                  </TableRow>
 
                 {/* Envío y manejo */}
                 <TableRow>
@@ -730,11 +734,9 @@ const Checkout = () => {
                 <TableRow className="font-bold">
                   <TableCell>Total con descuento:</TableCell>
                   <TableCell>
-                    {(
-                      orderTotalWithDiscount
-                    ).toFixed(2)} US$ {/* Total con descuento */}
+                    {orderTotalWithoutDiscount.toFixed(2)} US$ {/* Ahora refleja los descuentos correctamente */}
                   </TableCell>
-              </TableRow>
+                </TableRow>
               </TableBody>
             </Table>
 
