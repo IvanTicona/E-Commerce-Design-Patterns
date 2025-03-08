@@ -24,6 +24,7 @@ const CartShop = () => {
     onOpen();
   };
 
+
   const handleCheckout = () => {
     sessionStorage.removeItem("buyNow");
     navigate("/checkout"); // Redirige a la página de checkout
@@ -35,14 +36,14 @@ const CartShop = () => {
   };
 
   // Actualizar carrito en localStorage
-  const updateCartInStorage = (updatedCart: { id: number; quantity: number }[]) => {
+  const updateCartInStorage = (updatedCart: { _id: number; quantity: number }[]) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   // Eliminar producto del carrito
-  const handleRemoveFromCart = (id: number) => {
+  const handleRemoveFromCart = (_id: number) => {
     // Obtener el carrito actual
-    const updatedCart = getCartFromStorage().filter((item: { id: number; quantity: number }) => item.id !== id);
+    const updatedCart = getCartFromStorage().filter((item: { _id: number; quantity: number }) => item._id !== _id);
 
     // Actualizar carrito en localStorage y en el estado
     updateCartInStorage(updatedCart);
@@ -51,7 +52,7 @@ const CartShop = () => {
   };
 
   // Inicializamos el carrito desde localStorage
-  const [cart, setCart] = React.useState<{ id: number; quantity: number }[]>(getCartFromStorage);
+  const [cart, setCart] = React.useState<{ _id: number; quantity: number }[]>(getCartFromStorage);
 
   const isCartEmpty = !localStorage.getItem("cart") || JSON.parse(localStorage.getItem("cart") || "[]").length === 0;
 
@@ -77,24 +78,26 @@ const CartShop = () => {
               </ModalHeader>
               <ModalBody>
                 {cart.length > 0 ? (
-                  cart.map((item: { id: number; quantity: number }) => {
-                    const product = products.find((prod) => prod.id === item.id);
+                  cart.map((item: { _id: number; quantity: number }) => {
+                    const product = products.find(
+                      (prod) => prod._id === item._id.toString(),
+                    );
 
                     return (
-                      <div key={item.id}>
+                      <div key={item._id}>
                         <Card
                           className="border-none w-full min-h-32 rounded-none"
                           shadow="none"
                         >
                           <div className="flex items-center gap-2">
                             <img
-                              alt={product?.nombre}
+                              alt={product?.name}
                               className="w-32 h-32 object-cover"
-                              src={product?.imagen}
+                              src={product?.images[0]}
                             />
                             <div className="flex flex-col gap-1 w-64 h-32 justify-between">
-                              <p className="text-sm">{product?.nombre}</p>
-                              <p className="text-sm">Bs. {product?.precio}</p>
+                              <p className="text-sm">{product?.name}</p>
+                              <p className="text-sm">Bs. {product?.price}</p>
                               <p className="text-sm">
                                 Cantidad: {item.quantity}
                               </p>
@@ -102,7 +105,7 @@ const CartShop = () => {
                                 className="font-light border"
                                 color="danger"
                                 variant="bordered"
-                                onClick={() => handleRemoveFromCart(item.id)} // Elimina el producto
+                                onClick={() => handleRemoveFromCart(item._id)} // Elimina el producto
                               >
                                 Quitar del carrito
                               </Button>

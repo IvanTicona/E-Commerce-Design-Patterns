@@ -234,7 +234,7 @@ const Checkout = () => {
 
   //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
-    if (cart.length == 0|| cart === null) {
+    if (cart === null) {
       navigate("/");
     }
 
@@ -245,7 +245,7 @@ const Checkout = () => {
   
       if (Array.isArray(parsedBuyNow) && parsedBuyNow.length > 0) {
         const updatedBuyNow = parsedBuyNow.map((item) => {
-          const productDetails = products.find((product) => product.id === item.id);
+          const productDetails = products.find((product) => product._id === item._id);
 
           return { ...item, ...productDetails };
         });
@@ -263,7 +263,7 @@ const Checkout = () => {
       const cartItems = JSON.parse(storedCart);
   
       const updatedCart = cartItems.map((item: any) => {
-        const productDetails = products.find((product) => product.id === item.id);
+        const productDetails = products.find((product) => product._id === item._id);
 
         return { ...item, ...productDetails };
       });
@@ -748,12 +748,12 @@ const Checkout = () => {
         {cart.map((item) => {
           return (
             <Card
-              key={item.id}
+              key={item._id}
               className="p-6 w-full sm:w-1/2 lg:w-1/3 min-w-[760px] flex flex-col justify-between"
             >
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Llega el {item.arrivalDate}</h2>
-                <Button size="sm" onPress={() => navigate(`/product/${item.id}`)}>Revisar pedido</Button>
+                <Button size="sm" onPress={() => navigate(`/product/${item._id}`)}>Revisar pedido</Button>
               </div>
               <div className="mt-4 flex items-center">
                 <img

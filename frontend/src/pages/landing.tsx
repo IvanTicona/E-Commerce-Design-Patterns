@@ -10,7 +10,7 @@ const LandingPage = () => {
 
   const handleDetails = (product: Product) => {
     setTimeout(() => {
-      navigation(`/product/${product.id}`);
+      navigation(`/product/${product._id}`);
     }, 300);
   };
 
@@ -19,7 +19,7 @@ const LandingPage = () => {
       <div className="flex gap-4 flex-wrap">
         {products.map((item) => (
           <Card
-            key={item.id}
+            key={item._id}
             isPressable
             className="size-80"
             shadow="sm"
@@ -27,17 +27,17 @@ const LandingPage = () => {
           >
             <CardBody className="overflow-visible p-0">
               <Image
-                alt={item.nombre}
+                alt={item.name}
                 className="w-full object-fill h-[270px]"
                 radius="lg"
                 shadow="sm"
-                src={item.imagen}
+                src={item.images[0]}
                 width={384}
               />
             </CardBody>
             <CardFooter className="text-small justify-between">
-              <b>{item.nombre}</b>
-              <p className="text-default-500">Bs. {item.precio}</p>
+              <b>{item.name}</b>
+              <p className="text-default-500">Bs. {item.price}</p>
             </CardFooter>
           </Card>
         ))}

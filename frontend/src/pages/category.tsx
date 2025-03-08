@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardFooter,
@@ -9,26 +9,62 @@ import {
 } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 
-import { Product, products } from "../data/products";
+import { Product } from "../data/products";
 
 import DefaultLayout from "@/layouts/default";
 
 const CategoryPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const MONGO_URI = import.meta.env.VITE_REACT_APP_SERVER_URL; // Revisa si esta URL es correcta
+        const response = await fetch(`${MONGO_URI}/products`);
+
+        if (!response.ok) {
+          console.error(
+            "Error al obtener los productos:",
+            response.status,
+            response.statusText,
+          );
+          throw new Error("Error al obtener los productos");
+        }
+
+        const data = await response.json();
+
+        if (data && Array.isArray(data)) {
+          console.log('Productos recibidos:', data);
+          setProducts(data);
+        } else {
+          throw new Error('Los datos no son válidos o están vacíos');
+        }
+      } catch (error) {
+        console.error('Error al obtener productos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+  
 
   const categories = [
     "Todos",
-    ...new Set(products.map((product) => product.categoria)),
+    ...new Set(products.map((product) => product.category)),
   ];
 
   const filteredProducts =
     selectedCategory === "Todos"
       ? products
-      : products.filter((product) => product.categoria === selectedCategory);
+      : products.filter((product) => product.category === selectedCategory);
 
   const handleDetails = (product: Product) => {
-    navigate(`/product/${product.id}`);
+    navigate(`/product/${product._id}`);
   };
 
   return (
@@ -45,32 +81,38 @@ const CategoryPage = () => {
           ))}
         </Select>
 
-        <div className="flex gap-4 flex-wrap">
-          {filteredProducts.map((item) => (
-            <Card
-              key={item.id}
-              isPressable
-              className="size-80"
-              shadow="sm"
-              onPress={() => handleDetails(item)}
-            >
-              <CardBody className="overflow-visible p-0">
-                <Image
-                  alt={item.nombre}
-                  className="w-full object-fill h-[270px]"
-                  radius="lg"
-                  shadow="sm"
-                  src={item.imagen}
-                  width={384}
-                />
-              </CardBody>
-              <CardFooter className="text-small justify-between">
-                <b>{item.nombre}</b>
-                <p className="text-default-500">Bs. {item.precio}</p>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {loading ? (
+          <p>Cargando productos...</p>
+        ) : (
+          <div className="flex gap-4 flex-wrap">
+            {filteredProducts.map((item) => (
+              <Card
+                key={item._id}
+                isPressable
+                className="size-80"
+                shadow="sm"
+                onPress={() => handleDetails(item)}
+              >
+                <CardBody className="overflow-visible p-0">
+                  <Image
+                    alt={item.name}
+                    className="w-full object-fill h-[270px]"
+                    radius="lg"
+                    shadow="sm"
+                    src={item.images[0] || "https://via.placeholder.com/150"} // Usa la primera imagen o una por defecto
+                    width={384}
+                  />
+                </CardBody>
+                <CardFooter className="text-small justify-between">
+                  <b>{item.name}</b>
+                  <p className="text-default-500">
+                    Bs. {item.price.toFixed(2)}
+                  </p>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </DefaultLayout>
   );
