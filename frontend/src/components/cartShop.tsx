@@ -42,18 +42,17 @@ const CartShop = () => {
   // Eliminar producto del carrito
   const handleRemoveFromCart = (id: number) => {
     // Obtener el carrito actual
-    const updatedCart = getCartFromStorage().filter((item: { id: number; quantity: number }) => item.id !== id);
+    const updatedCart = getCartFromStorage().filter((item: { id: number }) => item.id !== id);
 
     // Actualizar carrito en localStorage y en el estado
     updateCartInStorage(updatedCart);
-    // Re-renderizamos el carrito después de la eliminación
     setCart(updatedCart);
   };
 
   // Inicializamos el carrito desde localStorage
   const [cart, setCart] = React.useState<{ id: number; quantity: number }[]>(getCartFromStorage);
 
-  const isCartEmpty = !localStorage.getItem("cart") || JSON.parse(localStorage.getItem("cart") || "[]").length === 0;
+  const isCartEmpty = cart.length === 0;
 
   return (
     <>
@@ -77,38 +76,59 @@ const CartShop = () => {
               </ModalHeader>
               <ModalBody>
                 {cart.length > 0 ? (
-                  cart.map((item: { id: number; quantity: number }) => {
-                    const product = products.find((prod) => prod.id === item.id);
+                  cart.map((item) => {
+                    // Buscar el producto en la lista de productos
+                    const product = products.find((prod) => prod.id === item.id) || null;
 
                     return (
                       <div key={item.id}>
-                        <Card
-                          className="border-none w-full min-h-32 rounded-none"
-                          shadow="none"
-                        >
-                          <div className="flex items-center gap-2">
-                            <img
-                              alt={product?.nombre}
-                              className="w-32 h-32 object-cover"
-                              src={product?.imagen}
-                            />
-                            <div className="flex flex-col gap-1 w-64 h-32 justify-between">
-                              <p className="text-sm">{product?.nombre}</p>
-                              <p className="text-sm">Bs. {product?.precio}</p>
-                              <p className="text-sm">
-                                Cantidad: {item.quantity}
-                              </p>
-                              <Button
-                                className="font-light border"
-                                color="danger"
-                                variant="bordered"
-                                onClick={() => handleRemoveFromCart(item.id)} // Elimina el producto
-                              >
-                                Quitar del carrito
-                              </Button>
+                        {product ? (
+                          <Card className="border-none w-full min-h-32 rounded-none" shadow="none">
+                            <div className="flex items-center gap-2">
+                              {/* Imagen del producto */}
+                              <img
+                                alt={product.nombre}
+                                className="w-32 h-32 object-cover"
+                                src={product.imagen}
+                              />
+                              <div className="flex flex-col gap-1 w-64 h-32 justify-between">
+                                {/* Nombre del producto */}
+                                <p className="text-sm">{product.nombre}</p>
+
+                                {/* Mostrar el precio con descuento si aplica */}
+                                <div className="flex items-center gap-2">
+                                  {product.descuento > 0 ? (
+                                    <>
+                                      <p className="text-gray-500 line-through text-sm">
+                                        Bs. {product.precio.toFixed(2)}
+                                      </p>
+                                      <p className="text-red-500 font-bold text-sm">
+                                        Bs. {(product.precio * (1 - product.descuento)).toFixed(2)}
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <p className="text-sm">Bs. {product.precio.toFixed(2)}</p>
+                                  )}
+                                </div>
+
+                                {/* Cantidad */}
+                                <p className="text-sm">Cantidad: {item.quantity}</p>
+
+                                {/* Botón para quitar del carrito */}
+                                <Button
+                                  className="font-light border"
+                                  color="danger"
+                                  variant="bordered"
+                                  onClick={() => handleRemoveFromCart(item.id)}
+                                >
+                                  Quitar del carrito
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        </Card>
+                          </Card>
+                        ) : (
+                          <p className="text-red-500">⚠️ Producto no encontrado</p>
+                        )}
                         <Divider />
                       </div>
                     );
