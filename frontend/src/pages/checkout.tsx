@@ -47,6 +47,8 @@ const Checkout = () => {
   const [orderTotalWithDiscount, setOrderTotalWithDiscount] = useState(0);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponApplied, setCouponApplied] = useState(false);
+  const [paypalEmail, setPaypalEmail] = useState("");
+  const [paypalPassword, setPaypalPassword] = useState("");
 
   const [showAddressSelection, setShowAddressSelection] = useState(true);
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -56,6 +58,8 @@ const Checkout = () => {
   const [countries, setCountries] = useState<{ cca3: string; name: { common: string } }[]>([]); 
   const [cart, setCart] = useState<any[]>([]);
   const [confirmedPayment, setConfirmedPayment] = useState<{ cardNumber: string; cardHolder: string; expiryDate: string } | null>(null);
+  const [confirmedPaymentPayPal, setConfirmedPaymentPayPal] = useState<{ paypalEmail: string; paypalPassword: string } | null>(null);
+
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null); 
 
   const [isAddresFilled, setAddresFilled] = useState(false);
@@ -212,25 +216,46 @@ const Checkout = () => {
   
 
   const handleConfirmPayment = () => {
-    sessionStorage.setItem('paymentDetails', JSON.stringify({
-      //ocultar los primeros 12 dígitos de la tarjeta
-      cardNumber: `**** **** **** ${cardNumber.slice(-4)}`,
-      cardHolder: cardHolder,
-      expiryDate: expiryDate,
-    }));
-
-    setConfirmedPayment({
-      cardNumber,
-      cardHolder,
-      expiryDate,
-    });
-    setPaymentFilled(true);
-  };
+      sessionStorage.setItem('paymentDetails', JSON.stringify({
+        //ocultar los primeros 12 dígitos de la tarjeta
+        cardNumber: `**** **** **** ${cardNumber.slice(-4)}`,
+        cardHolder: cardHolder,
+        expiryDate: expiryDate,
+      }));
+  
+      setConfirmedPayment({
+        cardNumber,
+        cardHolder,
+        expiryDate,
+      });
+  
+      setPaymentFilled(true);
+    };
+  
+  const handleConfirmPaymentPayPal = () => {
+      sessionStorage.setItem('paymentDetails', JSON.stringify({
+        paypalEmail: paypalEmail,
+        paypalPassword: paypalPassword,
+      }));
+  
+      setConfirmedPaymentPayPal({
+        paypalEmail,
+        paypalPassword,
+      });
+      
+      setPaymentFilled(true);
+    };
 
   const handleCancelPayment = () => {
     setConfirmedPayment(null);
   };
 
+
+  const handleCancelPaymentPayPal = () => {
+    setConfirmedPaymentPayPal(null);
+  };
+
+  //setConfirmedPaymentPayPal(null);
   const handleConfirmProducts = () => {
     // Guardar el carrito en sessionStorage\
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -545,6 +570,7 @@ const Checkout = () => {
             onChange={(e) => {
               setPaymentMethod(e.target.value);
               setConfirmedPayment(null); // Restablece el estado cuando cambia el método
+              setConfirmedPaymentPayPal(null);
             }}
           >
             <SelectItem key="credit" data-value="credit">
@@ -652,11 +678,63 @@ const Checkout = () => {
           )}
 
           {/* Paypal seleccionado*/}
-            {paymentMethod === "paypal" && (
-                <>
-                <Alert className="mt-2">PayPal no está disponible en tu región</Alert>
-                </>
+            {paymentMethod === "paypal" && !confirmedPaymentPayPal && (
+              <>
+                <Input
+                  className="mt-2"
+                  placeholder="Correo electrónico"
+                  value={paypalEmail}
+                  onChange={(e) => setPaypalEmail(e.target.value)}
+                />
+                {paypalEmail && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i.test(paypalEmail) && (
+                  <Alert className="mt-2">
+                    Por favor, introduce un correo electrónico válido.
+                  </Alert>
+                )}
+
+                <Input
+                  className="mt-2"
+                  placeholder="Contraseña de PayPal"
+                  type="password"
+                  value={paypalPassword}
+                  onChange={(e) => setPaypalPassword(e.target.value)}
+                />
+                {paypalPassword && paypalPassword.length < 6 && (
+                  <Alert className="mt-2">
+                    La contraseña debe tener al menos 6 caracteres.
+                  </Alert>
+                )}
+
+                {/* Botón de Aceptar (se habilita solo si los datos son válidos) */}
+                <Button
+                  className="mt-4"
+                  isDisabled={
+                    !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i.test(paypalEmail) ||
+                    paypalPassword.length < 6
+                  }
+                  onClick={handleConfirmPaymentPayPal} 
+                >
+                  Aceptar
+                </Button>
+              </>
             )}
+
+            {confirmedPaymentPayPal && (
+              <div className="p-4 bg-gray-100 rounded-md mt-4 flex flex-col gap-2">
+                <h3 className="text-md font-semibold">Pago Confirmado con PayPal</h3>
+                <p className="text-gray-700">
+                  <strong>Correo electrónico:</strong> {paypalEmail}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Contraseña:</strong> {paypalPassword}
+                </p>
+
+                <Button className="mt-2" color="danger" onClick={handleCancelPaymentPayPal}>
+                  Cancelar
+                </Button>
+              </div>
+            )}
+
         </Card>
 
         <Card className="p-4 mb-4">
