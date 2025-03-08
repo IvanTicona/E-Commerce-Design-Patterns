@@ -11,8 +11,11 @@ export class Product {
   @Prop({ required: true })
   name: string;
 
-  @Prop()
+  @Prop({ required: false })
   description: string;
+
+  @Prop({ required: true })
+  category: string;
 
   @Prop({ required: true })
   price: number;
@@ -22,6 +25,15 @@ export class Product {
 
   @Prop({ default: 0 })
   stock: number;
+
+  @Prop({ required: false, default: 0 })
+  rating: number;
+
+  @Prop({ required: false })
+  arrivalDate: string;
+
+  @Prop({ required: false, default: 0 })
+  discount: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -21,7 +21,9 @@ export class ProductsService {
 
   // Obtener todos los productos
   async findAll(): Promise<Product[]> {
-    return this.productModel.find().exec();
+    const products = await this.productModel.find().exec();
+    console.log('Productos recuperados:', products); // Verifica los datos aquí
+    return products;
   }
 
   // Obtener un producto por ID

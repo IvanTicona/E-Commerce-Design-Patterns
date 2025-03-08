@@ -15,7 +15,10 @@ export class ProductsController {
 
   @Get()
   async findAll() {
-    return this.productsService.findAll();
+    console.log('🔥 Ejecutando findAll() en el controlador...');
+    const products = await this.productsService.findAll();
+    console.log('📦 Productos enviados al frontend:', products);
+    return products;
   }
 
   @Get(':id')
