@@ -286,13 +286,13 @@ const Checkout = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mx-auto max-w-6xl">
       <div className="col-span-2">
-        <h1 className="text-2xl font-bold mb-4">Finalizar Compra</h1>
+      <h1 className="text-2xl font-bold mb-4 text-blue-900">Finalizar Compra</h1>
         {/* SELECCIÓN DE DIRECCIÓN */}
 
         <Card className="p-4 mb-4">
         {showAddressSelection ? (
           <>
-            <h2 className="text-lg font-semibold mb-2">Selecciona una dirección de envío</h2>
+           <h2 className="text-lg font-semibold mb-2 text-blue-900">Selecciona una dirección de envío</h2>
             <RadioGroup
               value={selectedAddress}
               onChange={(e) => {
@@ -318,10 +318,12 @@ const Checkout = () => {
               ))}
             </RadioGroup>
 
-            <Button className="max-w-fit mt-2" onPress={onOpen}>
+            <Button 
+                className="max-w-fit mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition"
+                onPress={onOpen}
+              >
                 Añadir nueva dirección
-            </Button>
-
+              </Button>
             <Button
               className="mt-4"
               isDisabled={!selectedAddress}
@@ -537,7 +539,7 @@ const Checkout = () => {
 
         {/* MÉTODO DE PAGO */}
         <Card className="p-4 mb-4">
-          <h2 className="text-lg font-semibold mb-2">Método de pago</h2>
+        <h2 className="text-lg font-semibold mb-2 text-blue-900">Método de pago</h2>
           <Select
             label="Método de pago"
             placeholder="Selecciona un método de pago"
@@ -661,7 +663,7 @@ const Checkout = () => {
 
         <Card className="p-4 mb-4">
         {!showCouponInput && (
-            <Button className="mt-4" onClick={() => setShowCouponInput(true)}>Usar código promocional</Button>
+            <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition" onClick={() => setShowCouponInput(true)}>Usar código promocional</Button>
           )}
 
           {showCouponInput && (
@@ -687,7 +689,7 @@ const Checkout = () => {
       {/* CONFIRMACIÓN DEL PEDIDO */}
         <div className="col-span-1">
           <Card className="p-4 sticky top-4">
-            <h2 className="text-lg font-semibold mb-2">Resumen del Pedido</h2>
+          <h2 className="text-lg font-semibold mb-2 text-blue-900">Resumen del Pedido</h2>
             <Table>
               <TableHeader>
                 <TableColumn>Descripción</TableColumn>
@@ -695,7 +697,7 @@ const Checkout = () => {
               </TableHeader>
               <TableBody>
                 {/* Mostrar productos */}
-                <TableRow>
+                <TableRow className="font-bold bg-gray-100">
                     <TableCell>
                       {cart.map((item) => item.nombre).join(", ")}
                     </TableCell>
@@ -708,41 +710,40 @@ const Checkout = () => {
                     </TableCell>
                   </TableRow>
 
-                {/* Envío y manejo */}
-                <TableRow>
-                  <TableCell>Envío y manejo:</TableCell>
-                  <TableCell>46.06US$</TableCell>
+               {/* Envío y manejo */}
+                <TableRow className="font-bold bg-gray-100">
+                  <TableCell className="py-3 border-t border-gray-300 text-gray-900">Envío y manejo:</TableCell>
+                  <TableCell className="py-3 border-t border-gray-300 text-gray-900 text-right">46.06 US$</TableCell>
                 </TableRow>
 
                 {/* Tasas de importación */}
-                <TableRow>
-                  <TableCell>Depósito de tasas de importación:</TableCell>
-                  <TableCell>25.72US$</TableCell>
+                <TableRow className="font-bold bg-gray-100">
+                  <TableCell className="py-3 border-t border-gray-300 text-gray-900">Depósito de tasas de importación:</TableCell>
+                  <TableCell className="py-3 border-t border-gray-300 text-gray-900 text-right">25.72 US$</TableCell>
                 </TableRow>
 
                 {/* Total */}
-                <TableRow className="font-bold">
-                  <TableCell>Total:</TableCell>
-                  <TableCell>
-                    {(
-                      orderTotal 
-                    ).toFixed(2)} US$
+                <TableRow className="font-bold bg-gray-100">
+                  <TableCell className="py-3 border-t border-gray-400 text-gray-900">Total:</TableCell>
+                  <TableCell className="py-3 border-t border-gray-400 text-gray-900 text-right">
+                    {orderTotal.toFixed(2)} US$
                   </TableCell>
                 </TableRow>
 
                 {/* Total con descuento (si hay algún descuento aplicado) */}
-                <TableRow className="font-bold">
-                  <TableCell>Total con descuento:</TableCell>
-                  <TableCell>
-                    {orderTotalWithoutDiscount.toFixed(2)} US$ {/* Ahora refleja los descuentos correctamente */}
+                <TableRow className="font-bold bg-gray-100">
+                  <TableCell className="py-3 border-t border-gray-400 text-gray-900">Total con descuento:</TableCell>
+                  <TableCell className="py-3 border-t border-gray-400 text-gray-900 text-right">
+                    {orderTotalWithoutDiscount.toFixed(2)} US$
                   </TableCell>
+
                 </TableRow>
               </TableBody>
             </Table>
 
             {/* BOTÓN DE CONFIRMACIÓN */}
             <Button 
-            className="mt-4 w-full" 
+            className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition" 
             onPress={() => {
               if (isAddresFilled && isPaymentFilled) {
                 navigate(`/successful-purchase`)
@@ -757,7 +758,6 @@ const Checkout = () => {
         </div>
 
 
-
       {/* PRODUCTOS EN EL CARRITO */}
       <div className="col-span-2 lg:col-span-2 flex flex-wrap justify-center gap-8">
         {cart.map((item) => {
@@ -767,8 +767,10 @@ const Checkout = () => {
               className="p-6 w-full sm:w-1/2 lg:w-1/3 min-w-[760px] flex flex-col justify-between"
             >
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Llega el {item.arrivalDate}</h2>
-                <Button size="sm" onPress={() => navigate(`/product/${item.id}`)}>Revisar pedido</Button>
+              <h2 className="text-lg font-semibold text-blue-900">Llega el {item.arrivalDate}</h2>
+                <Button size="sm" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded-lg shadow-md hover:shadow-lg transition" 
+                  onPress={() => navigate(`/product/${item.id}`)}>Revisar pedido</Button>
               </div>
               <div className="mt-4 flex items-center">
                 <img
