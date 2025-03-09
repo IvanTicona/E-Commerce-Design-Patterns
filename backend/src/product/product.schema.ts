@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+// product.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -9,19 +7,28 @@ export type ProductDocument = Product & Document;
 @Schema({ timestamps: true })
 export class Product {
   @Prop({ required: true })
-  name: string;
+  nombre: string;
 
   @Prop()
-  description: string;
+  descripcion: string;
 
   @Prop({ required: true })
-  price: number;
+  precio: number;
 
-  @Prop({ type: [String] }) // Aquí se almacenarán URLs de las imágenes
-  images: string[];
+  @Prop({ required: true })
+  categoria: string;
 
-  @Prop({ default: 0 })
+  @Prop({ required: true })
+  imagen: string;
+
+  @Prop({ required: true })
   stock: number;
+
+  @Prop({ required: true, default: 0 })
+  rating: number;
+
+  @Prop({ type: { discount: Number }, required: false })
+  offer?: { discount: number };
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

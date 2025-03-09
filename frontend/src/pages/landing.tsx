@@ -1,11 +1,15 @@
+/* eslint-disable no-console */
 import { Card, CardFooter, Image, CardBody } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
-
-import { Product, products } from "../data/products";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
+import { Product } from "@/interface/product";
 
 const LandingPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigate();
 
   const handleDetails = (product: Product) => {
@@ -13,6 +17,28 @@ const LandingPage = () => {
       navigation(`/product/${product.id}`);
     }, 300);
   };
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/products")
+      .then((response) => {
+        const productsData: Product[] = (response.data as Product[]).map(
+          (prod: any) => ({
+            ...prod,
+            id: prod._id,
+          }),
+        );
+
+        setProducts(productsData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Cargando productos...</div>;
 
   return (
     <DefaultLayout>

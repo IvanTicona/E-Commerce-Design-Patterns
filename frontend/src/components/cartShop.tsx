@@ -33,7 +33,13 @@ const CartShop = () => {
 
   return (
     <>
-      <Badge color="primary" content={cart} size="md" onClick={() => {}}>
+      <Badge
+        color="primary"
+        content={cart}
+        isInvisible={cart === 0}
+        size="md"
+        onClick={() => {}}
+      >
         <Button isIconOnly className="bg-transparent" onPress={handleOpen}>
           <CartIcon />
         </Button>

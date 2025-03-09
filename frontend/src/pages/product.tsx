@@ -1,16 +1,42 @@
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Divider, Image } from "@heroui/react";
 import "animate.css";
-
-import { products } from "../data/products";
+import axios from "axios";
 
 import DefaultLayout from "@/layouts/default";
 import Rating from "@/components/rating";
 import PurchaseOptions from "@/components/purchaseOptions";
+import { Product } from "@/interface/product";
 
 const ProductPage = () => {
   const { id } = useParams();
-  const index = Number(id) - 1;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    axios
+      .get<Product & { _id: string }>(`http://localhost:3000/products/${id}`)
+      .then((response) => {
+        const productData: Product = {
+          ...response.data,
+          id: response.data._id,
+        };
+
+        setProduct(productData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching product:", error);
+        setError("Error fetching product");
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <div>Cargando producto...</div>;
+  if (error) return <div>{error}</div>;
+  if (!product) return <div>Producto no encontrado</div>;
 
   return (
     <DefaultLayout>
@@ -18,27 +44,27 @@ const ProductPage = () => {
         <div className="col-span-2 row-span-5">
           <Image
             isZoomed
-            alt={products[index].nombre}
+            alt={product.nombre}
             className="w-full"
-            src={products[index].imagen}
+            src={product.imagen}
           />
         </div>
 
         <div className="col-span-3 row-span-5 col-start-3">
-          <h3 className="text-3xl font-medium">{products[index].nombre}</h3>
+          <h3 className="text-3xl font-medium">{product.nombre}</h3>
           <p className="text-lg font-light">
-            Categoría: {products[index].categoria}
+            Categoría: {product.categoria}
           </p>
-          <Rating rating={products[index].rating} />
+          <Rating rating={product.rating} />
           <Divider className="my-5" />
           <p className="text-lg font-light">
-            Precio: Bs. {products[index].precio}
+            Precio: Bs. {product.precio}
           </p>
-          <p className="text-lg font-light">Rating: {products[index].rating}</p>
+          <p className="text-lg font-light">Rating: {product.rating}</p>
         </div>
 
         <div className="flex flex-col gap-5 col-span-2 row-span-5 col-start-6 p-5 rounded-lg border">
-          <PurchaseOptions {...products[index]} />
+          <PurchaseOptions {...product} />
         </div>
       </div>
     </DefaultLayout>
