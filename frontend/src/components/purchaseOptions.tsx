@@ -2,32 +2,42 @@ import { useEffect, useState } from "react";
 import { Button, Chip, NumberInput } from "@heroui/react";
 import { useNavigate } from "react-router";
 
-// Este es el tipo para un artículo en el carrito
-interface CartItem {
-  productId: string; // Utilizamos ObjectId de MongoDB
-  quantity: number;
-}
-
 interface PurchaseOptionsProps {
-  id: string;  // Utilizamos string para el ObjectId de MongoDB
+  id: string;
   stock: number;
   precio: number;
+  descuento: number; // 🔹 Agregamos el descuento como una nueva prop
 }
 
 const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   id,
   stock,
   precio,
+  descuento, // 🔹 Recibimos el descuento como parámetro
 }) => {
-  const [cart, setCart] = useState<CartItem[]>([]); // Carrito almacenado en el estado
+  interface CartItem {
+    id: string;
+    quantity: number;
+  }
+
+  // 🔹 Calculamos si el producto tiene descuento
+  const tieneDescuento = descuento > 0;
+
+  // 🔹 Si el producto tiene descuento, calculamos el nuevo precio con el descuento aplicado
+  const precioConDescuento = (precio * (1 - descuento)).toFixed(2);
+
+  const [cart, setCart] = useState(() => {
+    const storedCart = localStorage.getItem("cart");
+
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+
   const [quantity, setQuantity] = useState<number>(1);
   const [quantityValid, setQuantityValid] = useState(false);
-
   const navigate = useNavigate();
-  const MONGO_URI = import.meta.env.VITE_REACT_APP_SERVER_URL;
 
-  // Manejar el cambio en la cantidad de productos
   const handleQuantityChange = (value: number) => {
+    // Validación de la cantidad
     if (value < 1 || value > stock) {
       setQuantityValid(true);
     } else {
@@ -36,72 +46,72 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
     setQuantity(value);
   };
 
-  // Obtener el carrito del usuario desde la base de datos
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const response = await fetch(`${MONGO_URI}/cart`);
-        const data = await response.json();
+    const storedCart = localStorage.getItem("cart");
 
-        // Comprobar si `data.items` existe y tiene elementos
-        if (Array.isArray(data.items) && data.items.length > 0) {
-          setCart(data.items); // Si items es un array no vacío, actualizar el carrito
-          console.log("Carrito recibido:", data.items);
-        } else {
-          // Si no hay items o no es un array, puedes manejarlo de otra manera
-          setCart([]); // Configura el carrito como vacío
-          console.log("No hay artículos en el carrito.");
-        }
-        console.log("Carrito recibido:", data.items);
-      } catch (error) {
-        console.error("Error al obtener el carrito:", error);
-      }
-    };
-
-    fetchCart();
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
   }, []);
 
-  // Función para agregar un producto al carrito
-  const handleAddToCart = async () => {
-    const existingItem = cart.find((item) => item.productId === id);
-    console.log(stock, quantity, precio)
-    let updatedCart;
+  useEffect(() => {
+    if (cart.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  }, [cart]);
+
+  const handleAddToCart = () => {
+    const storedCart = localStorage.getItem("cart");
+    const cartItems = storedCart ? JSON.parse(storedCart) : [];
+
+    const existingItem = cartItems.find((item: CartItem) => item.id === id);
 
     if (existingItem) {
-      // Si el producto ya está en el carrito, actualizamos la cantidad
-      updatedCart = cart.map((item) =>
-        item.productId === id ? { ...item, quantity: item.quantity + quantity } : item
-      );
+      existingItem.quantity += quantity;
     } else {
-      // Si no está en el carrito, lo agregamos
-      updatedCart = [...cart, { productId: id, quantity }];
+      cartItems.push({ id, quantity });
     }
 
-    // Actualizar el carrito en la base de datos
-    try {
-      await fetch(`${MONGO_URI}/cart`, {
-        method: "PUT", // O POST, dependiendo de tu endpoint
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cartItems: updatedCart }),
-      });
-
-      setCart(updatedCart); // Actualizamos el carrito en el estado
-    } catch (error) {
-      console.error("Error al actualizar el carrito:", error);
-    }
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+    setCart(cartItems);
   };
 
-  // Función para comprar ahora
   const handleBuyNow = () => {
-    const buyNowItem = [{ productId: id, quantity }];
+    const buyNowItem = [{ id, quantity }];
 
+    localStorage.setItem("isQuickBuy", "true");
     sessionStorage.setItem("buyNow", JSON.stringify(buyNowItem));
     navigate("/checkout");
   };
 
   return (
     <>
-      <span className="text-2xl font-bold">Bs. {precio}</span>
+      {}
+      <div className="flex flex-col items-start">
+        {tieneDescuento ? (
+          <>
+            {/* Si el producto tiene descuento, mostramos el precio original tachado */}
+            <span className="text-gray-500 line-through text-lg">
+              Bs. {precio.toFixed(2)}
+            </span>
+
+            {/* Mostramos el precio con descuento en rojo */}
+            <span className="text-red-500 font-bold text-2xl">
+              Bs. {precioConDescuento}
+            </span>
+
+            {/*  Mostramos el porcentaje de descuento en verde */}
+            <span className="text-green-600 font-semibold">
+              {Math.round(descuento * 100)}% OFF
+            </span>
+          </>
+        ) : (
+          // Si el producto NO tiene descuento, simplemente mostramos su precio normal
+          <span className="text-2xl font-bold">Bs. {precio.toFixed(2)}</span>
+        )}
+      </div>
+
+      {/* Estado del stock */}
       {stock > 0 ? (
         <Chip color="success" variant="flat">
           Disponible
@@ -111,31 +121,37 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
           Agotado
         </Chip>
       )}
+
+      {/* Selector de cantidad */}
       <NumberInput
         errorMessage={"Cantidad no válida"}
         isDisabled={stock === 0}
         isInvalid={quantityValid}
         label="Cantidad"
         labelPlacement={"outside-left"}
+        maxValue={stock}
         value={quantity}
         onValueChange={handleQuantityChange}
-        maxValue={stock}
       />
+
+      {/* Botón para agregar al carrito */}
       <Button
         color="warning"
-        isDisabled={stock === 0 || quantityValid} // Deshabilitar si no es válido
+        isDisabled={stock === 0 || quantityValid}
         radius="full"
         size="lg"
         onPress={handleAddToCart}
       >
         Agregar al carrito
       </Button>
+
+      {/* Botón para comprar ahora */}
       <Button
         color="success"
-        isDisabled={stock === 0 || quantity < 1} // Validar si la cantidad es válida
+        isDisabled={stock === 0 || quantity < 1}
         radius="full"
         size="lg"
-        onPress={handleBuyNow} // Aquí almacenamos y redirigimos
+        onPress={handleBuyNow}
       >
         Comprar ahora
       </Button>

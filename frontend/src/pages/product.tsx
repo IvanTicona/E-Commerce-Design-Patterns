@@ -68,6 +68,7 @@ const ProductPage = () => {
 
         <div className="flex flex-col gap-5 col-span-2 row-span-5 col-start-6 p-5 rounded-lg border">
           <PurchaseOptions
+            descuento={product?.discount ?? 0}
             id={product?._id}
             precio={product?.price ?? 0}
             stock={product?.stock ?? 0}

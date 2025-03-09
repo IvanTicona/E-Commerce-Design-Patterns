@@ -24,12 +24,65 @@ import {
   ModalFooter,
 } from "@heroui/react";
 import { useNavigate } from "react-router";
-import { useLocation } from "react-router";
  
-import { products } from "@/data/products";
+import { Product } from "@/data/products";
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]); // Estado para productos
+  const [loading, setLoading] = useState<boolean>(true); // Estado de carga
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const MONGO_URI = import.meta.env.VITE_REACT_APP_SERVER_URL; // Revisa si esta URL es correcta
+        const response = await fetch(`${MONGO_URI}/products`);
+
+        if (!response.ok) {
+          console.error(
+            "Error al obtener los productos:",
+            response.status,
+            response.statusText,
+          );
+          throw new Error("Error al obtener los productos");
+        }
+
+        const data = await response.json();
+
+        if (data && Array.isArray(data)) {
+
+        // Aquí puedes mapear los productos si es necesario antes de guardarlos
+          const validProducts = data.map(item => ({
+            _id: item._id,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            category: item.category,
+            discount: item.discount,
+            arrivalDate: item.arrivalDate,
+            rating: item.rating,
+            images: item.images || [],
+            stock: item.stock,
+          }));
+
+          setProducts(validProducts);
+        } else {
+          throw new Error("Los datos no son válidos o están vacíos");
+        }
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      } finally {
+        setLoading(false); // Termina la carga
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    console.log("Productos guardados en estado:", products);
+  }, [products]);
+
 
   const [addresses, setAddresses] = useState<string[]>(
     JSON.parse(localStorage.getItem("addressDetails") || "[]").map((address: any) =>
@@ -59,7 +112,7 @@ const Checkout = () => {
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null); 
 
   const orderTotalWithoutDiscount = cart.reduce(
-    (acc, item) => acc + item.precio * item.quantity,
+    (acc, item) => acc + item.price * item.quantity,
     0
   ) + 46.06 + 25.72;
   
@@ -132,6 +185,7 @@ const Checkout = () => {
   
     // Obtener las direcciones existentes del localStorage
     const existingAddresses = JSON.parse(localStorage.getItem('addressDetails') || '[]');
+
     console.log(existingAddresses);
   
     // Agregar la nueva dirección al arreglo de direcciones
@@ -165,7 +219,8 @@ const Checkout = () => {
 
   const handleConfirmAddress = () => {
     if (selectedAddressIndex !== null) {
-      const selectedAddress = addresses[selectedAddressIndex]; 
+      const selectedAddress = addresses[selectedAddressIndex];
+ 
       console.log(selectedAddress);
 
       // Guardamos la dirección seleccionada en sessionStorage
@@ -229,52 +284,29 @@ const Checkout = () => {
     sessionStorage.setItem("orderTotal", JSON.stringify(orderTotal)); 
     sessionStorage.setItem("orderTotalWithDiscount", JSON.stringify(orderTotalWithDiscount)); 
 
+    if (localStorage.getItem("isQuickBuy") === "true") {
+      localStorage.removeItem("cart");
+    }
   }
   
-
-  //Realizamos la carga de los productos en el carrito del sessionStorage
   useEffect(() => {
-    if (cart === null) {
+    if ((!localStorage.getItem("cart") || localStorage.getItem("cart")?.length == 2) && !localStorage.getItem("isQuickBuy")) {
       navigate("/");
     }
 
-    const buyNowItem = sessionStorage.getItem("buyNow");
-  
-    if (buyNowItem) {
-      const parsedBuyNow = JSON.parse(buyNowItem);
-  
-      if (Array.isArray(parsedBuyNow) && parsedBuyNow.length > 0) {
-        const updatedBuyNow = parsedBuyNow.map((item) => {
-          const productDetails = products.find((product) => product._id === item._id);
+    if (localStorage.getItem("isQuickBuy")) {
+      localStorage.removeItem("isQuickBuy");
+      const buyNowItem = JSON.parse(sessionStorage.getItem("buyNow") || "[]");
 
-          return { ...item, ...productDetails };
-        });
-  
-        setCart(updatedBuyNow); 
-
-        return;
-      }
+      setCart(buyNowItem);
+    } else {
+      setCart(JSON.parse(localStorage.getItem("cart") || "[]"));
     }
-  
-    // Si no hay "Comprar Ahora", cargar el carrito normal
-    const storedCart = localStorage.getItem("cart");
 
-    if (storedCart) {
-      const cartItems = JSON.parse(storedCart);
-  
-      const updatedCart = cartItems.map((item: any) => {
-        const productDetails = products.find((product) => product._id === item._id);
+  }), [];
 
-        return { ...item, ...productDetails };
-      });
-  
-      setCart(updatedCart);
-    }
-  }, [products]);
-  
-      
+  console.log("Antes del return"+products);
 
-  
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mx-auto max-w-6xl">
       <div className="col-span-2">
@@ -690,11 +722,11 @@ const Checkout = () => {
                 <TableRow>
                   <TableCell>
                     {cart
-                      .map((item) => item.nombre)
+                      .map((item) => item.name)
                       .join(", ")} {/* Mostrar títulos separados por comas */}
                   </TableCell>
                   <TableCell>
-                    {cart.reduce((total, item) => total + item.precio * item.quantity, 0).toFixed(2)} US$
+                    {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)} US$
                     {/* Sumar precios de productos multiplicados por cantidad */}
                   </TableCell>
                 </TableRow>
@@ -748,22 +780,22 @@ const Checkout = () => {
         {cart.map((item) => {
           return (
             <Card
-              key={item._id}
+              key={item.id}
               className="p-6 w-full sm:w-1/2 lg:w-1/3 min-w-[760px] flex flex-col justify-between"
             >
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Llega el {item.arrivalDate}</h2>
-                <Button size="sm" onPress={() => navigate(`/product/${item._id}`)}>Revisar pedido</Button>
+                <Button size="sm" onPress={() => navigate(`/product/${item.id}`)}>Revisar pedido</Button>
               </div>
               <div className="mt-4 flex items-center">
                 <img
-                  alt={item.nombre}  
+                  alt={item.name}  
                   className="w-24 h-24 object-cover"
-                  src={item.imagen}  
+                  src={item.images[0] || "https://th.bing.com/th/id/R.3a25567391b3ce970b66fde6c547bb71?rik=7G%2f8WUru8YkJSw&pid=ImgRaw&r=0"}  
                 />
                 <div className="ml-4">
-                  <h3 className="text-md font-semibold">{item.nombre}</h3>
-                  <p className="text-gray-600">{item.descripcion}</p>
+                  <h3 className="text-md font-semibold">{item.name}</h3>
+                  <p className="text-gray-600">{item.description}</p>
                   <p className="text-gray-600">Cantidad: {item.quantity}</p>
                 </div>
               </div>

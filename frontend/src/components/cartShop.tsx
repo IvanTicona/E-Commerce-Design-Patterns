@@ -10,106 +10,129 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import { useNavigate } from "react-router"; // Para usar navigate
-
-import CartIcon from "@/icons/cartIcon";
-import { products } from "@/data/products";
+import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import React from "react";
+
+import { Product } from "@/data/products";
+import CartIcon from "@/icons/cartIcon";
 
 const CartShop = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigate = useNavigate(); // Usamos useNavigate para redirigir
+  const navigate = useNavigate(); // Para la navegación
 
-  const handleOpen = () => {
-    onOpen();
-  };
+  const [products, setProducts] = useState<Product[]>([]); // Estado para almacenar productos
 
+  console.log(products);
 
-  const handleCheckout = () => {
-    sessionStorage.removeItem("buyNow");
-    navigate("/checkout"); // Redirige a la página de checkout
-  };
-
-  // Obtener carrito de localStorage
   const getCartFromStorage = () => {
     return JSON.parse(localStorage.getItem("cart") || "[]");
   };
+  const [cart, setCart] =
+    React.useState<{ id: number; quantity: number }[]>(getCartFromStorage);
 
-  // Actualizar carrito en localStorage
-  const updateCartInStorage = (updatedCart: { _id: number; quantity: number }[]) => {
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
+  useEffect(() => {
+    if (cart.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  }, [cart]);
 
-  // Eliminar producto del carrito
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const MONGO_URI = import.meta.env.VITE_REACT_APP_SERVER_URL;
+        const response = await fetch(`${MONGO_URI}/products`);
+
+        if (!response.ok) throw new Error("Error al obtener los productos");
+
+        const data = await response.json();
+
+        setProducts(data);
+        console.log("Productos recibidos ccartShop:", products.length);
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const handleRemoveFromCart = (_id: number) => {
-    // Obtener el carrito actual
-    const updatedCart = getCartFromStorage().filter((item: { _id: number; quantity: number }) => item._id !== _id);
+    const updatedCart = cart.filter((item) => item.id !== _id);
 
-    // Actualizar carrito en localStorage y en el estado
-    updateCartInStorage(updatedCart);
-    // Re-renderizamos el carrito después de la eliminación
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
   };
 
-  // Inicializamos el carrito desde localStorage
-  const [cart, setCart] = React.useState<{ _id: number; quantity: number }[]>(getCartFromStorage);
-
-  const isCartEmpty = !localStorage.getItem("cart") || JSON.parse(localStorage.getItem("cart") || "[]").length === 0;
+  const handleCheckout = () => {
+    sessionStorage.removeItem("buyNow");
+    navigate("/checkout");
+  };
 
   return (
     <>
-      <Badge color="primary" content={cart.length} size="md" onClick={handleOpen}>
-        <Button isIconOnly className="bg-transparent" onPress={handleOpen}>
+      <Badge color="primary" content={cart.length} size="md" onClick={onOpen}>
+        <Button isIconOnly className="bg-transparent" onPress={onOpen}>
           <CartIcon />
         </Button>
       </Badge>
+
       <Modal
-        classNames={{
-          body: "max-h-[70vh] overflow-y-auto",
-        }}
+        classNames={{ body: "max-h-[70vh] overflow-y-auto" }}
         isOpen={isOpen}
         onClose={onClose}
       >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Carrito de compras
               </ModalHeader>
               <ModalBody>
                 {cart.length > 0 ? (
-                  cart.map((item: { _id: number; quantity: number }) => {
+                  cart.map((item) => {
+                    console.log("item:" + item);
                     const product = products.find(
-                      (prod) => prod._id === item._id.toString(),
+                      (prod) => prod._id === item.id?.toString(),
                     );
 
+                    if (!product) {
+                      return null;
+                    }
+
                     return (
-                      <div key={item._id}>
+                      <div key={item.id}>
                         <Card
                           className="border-none w-full min-h-32 rounded-none"
                           shadow="none"
                         >
                           <div className="flex items-center gap-2">
-                            <img
-                              alt={product?.name}
-                              className="w-32 h-32 object-cover"
-                              src={product?.images[0]}
-                            />
-                            <div className="flex flex-col gap-1 w-64 h-32 justify-between">
-                              <p className="text-sm">{product?.name}</p>
-                              <p className="text-sm">Bs. {product?.price}</p>
-                              <p className="text-sm">
-                                Cantidad: {item.quantity}
-                              </p>
-                              <Button
-                                className="font-light border"
-                                color="danger"
-                                variant="bordered"
-                                onClick={() => handleRemoveFromCart(item._id)} // Elimina el producto
-                              >
-                                Quitar del carrito
-                              </Button>
-                            </div>
+                            {product && (
+                              <>
+                                <img
+                                  alt={product.name}
+                                  className="w-32 h-32 object-cover"
+                                  src={product.images[0]}
+                                />
+                                <div className="flex flex-col gap-1 w-64 h-32 justify-between">
+                                  <p className="text-sm">{product.name}</p>
+                                  <p className="text-sm">Bs. {product.price}</p>
+                                  <p className="text-sm">
+                                    Cantidad: {item.quantity}
+                                  </p>
+                                  <Button
+                                    className="font-light border"
+                                    color="danger"
+                                    variant="bordered"
+                                    onClick={() =>
+                                      handleRemoveFromCart(item.id)
+                                    }
+                                  >
+                                    Quitar del carrito
+                                  </Button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </Card>
                         <Divider />
@@ -126,7 +149,7 @@ const CartShop = () => {
                 </Button>
                 <Button
                   color="primary"
-                  isDisabled={isCartEmpty}
+                  isDisabled={!cart.length}
                   onPress={handleCheckout}
                 >
                   Checkout

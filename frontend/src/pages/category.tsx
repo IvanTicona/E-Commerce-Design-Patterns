@@ -6,6 +6,7 @@ import {
   CardBody,
   Select,
   SelectItem,
+  Spinner,
 } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -37,13 +38,11 @@ const CategoryPage = () => {
         const data = await response.json();
 
         if (data && Array.isArray(data)) {
-          console.log('Productos recibidos:', data);
           setProducts(data);
         } else {
-          throw new Error('Los datos no son válidos o están vacíos');
+          throw new Error("Los datos no son válidos o están vacíos");
         }
       } catch (error) {
-        console.error('Error al obtener productos:', error);
       } finally {
         setLoading(false);
       }
@@ -51,7 +50,16 @@ const CategoryPage = () => {
 
     fetchProducts();
   }, []);
-  
+
+  if (loading) {
+    return (
+      <DefaultLayout>
+        <div className="flex justify-center items-center h-screen">
+          <Spinner size="lg" />
+        </div>
+      </DefaultLayout>
+    ); // Mientras se cargan los productos, mostrar un spinner
+  }
 
   const categories = [
     "Todos",
