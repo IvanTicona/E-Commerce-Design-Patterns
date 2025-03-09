@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form, Input } from "@heroui/react";
 
 import DefaultLayout from "@/layouts/default";
+import { title } from "@/components/primitives";
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +31,6 @@ const ProductForm = () => {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    // Creamos un FormData para enviar los datos como multipart/form-data
     const data = new FormData();
 
     data.append("nombre", formData.nombre);
@@ -40,7 +39,6 @@ const ProductForm = () => {
     data.append("categoria", formData.categoria);
     data.append("stock", formData.stock);
     data.append("rating", formData.rating);
-    // Si se define descuento, lo agregamos en formato anidado (ej: offer.discount)
     if (formData.offerDiscount) {
       data.append("offer.discount", formData.offerDiscount);
     }
@@ -60,7 +58,7 @@ const ProductForm = () => {
 
   return (
     <DefaultLayout>
-      <h2>Crear Producto</h2>
+      <h2 className={title()}>Crear Producto</h2>
 
       <Form className="w-96 m-auto" onSubmit={handleSubmit}>
         <Input
