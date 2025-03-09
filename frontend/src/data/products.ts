@@ -1,5 +1,5 @@
 export type Product = {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
   precio: number;
@@ -11,7 +11,7 @@ export type Product = {
 
 export const products: Product[] = [
   {
-    id: 1,
+    id: "1",
     nombre: "Camiseta Deportiva",
     descripcion:
       "Camiseta transpirable para actividades deportivas, confeccionada en material 100% algodón.",
@@ -23,7 +23,7 @@ export const products: Product[] = [
     rating: 4.2,
   },
   {
-    id: 2,
+    id: "2",
     nombre: "Auriculares Inalámbricos",
     descripcion:
       "Auriculares con cancelación de ruido y batería de larga duración.",
@@ -35,7 +35,7 @@ export const products: Product[] = [
     rating: 4.7,
   },
   {
-    id: 3,
+    id: "3",
     nombre: "Smartwatch Deportivo",
     descripcion:
       "Reloj inteligente con monitor de frecuencia cardiaca y seguimiento de actividad.",
@@ -47,7 +47,7 @@ export const products: Product[] = [
     rating: 4.5,
   },
   {
-    id: 4,
+    id: "4",
     nombre: "Mochila Escolar",
     descripcion:
       "Mochila resistente y espaciosa, ideal para el colegio o la universidad.",
@@ -59,7 +59,7 @@ export const products: Product[] = [
     rating: 4.0,
   },
   {
-    id: 5,
+    id: "5",
     nombre: "Zapatos de Running",
     descripcion:
       "Calzado cómodo y ligero diseñado para running y entrenamientos intensos.",
@@ -71,7 +71,7 @@ export const products: Product[] = [
     rating: 4.3,
   },
   {
-    id: 6,
+    id: "6",
     nombre: "Cámara Deportiva",
     descripcion:
       "Cámara resistente al agua con grabación en 4K y estabilizador de imagen.",
@@ -82,7 +82,7 @@ export const products: Product[] = [
     rating: 4.8,
   },
   {
-    id: 7,
+    id: "7",
     nombre: "Bicicleta de Montaña",
     descripcion:
       "Bicicleta todoterreno con cuadro de aluminio y frenos de disco hidráulicos.",
@@ -93,7 +93,7 @@ export const products: Product[] = [
     rating: 4.9,
   },
   {
-    id: 8,
+    id: "8",
     nombre: "Balón de Fútbol",
     descripcion:
       "Balón oficial de la FIFA para partidos de fútbol profesionales.",
@@ -104,7 +104,7 @@ export const products: Product[] = [
     rating: 4.6,
   },
   {
-    id: 9,
+    id: "9",
     nombre: "Gafas de Sol",
     descripcion:
       "Gafas de sol polarizadas con protección UV y montura de aluminio.",
@@ -115,7 +115,7 @@ export const products: Product[] = [
     rating: 4.4,
   },
   {
-    id: 10,
+    id: "10",
     nombre: "Mancuernas Ajustables",
     descripcion:
       "Set de mancuernas ajustables con discos de peso para entrenamientos en casa o el gimnasio.",

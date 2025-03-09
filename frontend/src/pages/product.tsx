@@ -5,7 +5,7 @@ import "animate.css";
 import { products } from "../data/products";
 
 import DefaultLayout from "@/layouts/default";
-import Rating from "@/components/Rating";
+import Rating from "@/components/rating";
 import PurchaseOptions from "@/components/purchaseOptions";
 
 const ProductPage = () => {

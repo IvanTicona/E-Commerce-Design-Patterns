@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Chip, NumberInput } from "@heroui/react";
 
+import { useCart } from "@/context/cartContext";
+
 interface PurchaseOptionsProps {
-  id: number;
+  id: string;
   stock: number;
   precio: number;
 }
@@ -12,67 +14,108 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   stock,
   precio,
 }) => {
-  interface CartItem {
-    id: number;
-    quantity: number;
-  }
+  const [quantity, setQuantity] = useState<string>("1");
+  const [quantityInvalid, setQuantityInvalid] = useState(false);
+  const { addProduct, products } = useCart();
 
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [quantityValid, setQuantityValid] = useState(false);
+  const handlerOnChange = (
+    valueOrEvent: number | React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    if (typeof valueOrEvent !== "number") {
+      const value = valueOrEvent.target.value;
 
-  const handleQuantityChange = (e: any) => {
-    e.preventDefault();
-    const quantity = e.target.value;
+      setQuantity(value);
 
-    if (quantity < 0 || quantity > stock) {
-      setQuantityValid(true);
+      if (value === "") {
+        setQuantityInvalid(false);
+
+        return;
+      }
+
+      const numericValue = Number(value);
+
+      if (numericValue < 1 || numericValue > stock) {
+        setQuantityInvalid(true);
+      } else {
+        setQuantityInvalid(false);
+      }
     } else {
-      setQuantityValid(false);
+      const numericValue = valueOrEvent;
+
+      setQuantity(numericValue.toString());
+      if (numericValue < 1 || numericValue > stock) {
+        setQuantityInvalid(true);
+      } else {
+        setQuantityInvalid(false);
+      }
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  const handleAddToCart = () => {
-    setCart((prevCart) => [...prevCart, { id, quantity: 1 }]);
+  const handleBlur = () => {
+    if (quantity === "" || Number(quantity) < 1) {
+      setQuantity("1");
+      setQuantityInvalid(false);
+    }
   };
+
+  const handleAddProduct = () => {
+    const newProduct = {
+      id,
+      precio,
+      cantidad: Number(quantity),
+    };
+
+    addProduct(newProduct);
+  };
+
+  const outOfStock = stock === 0;
+  const fullInCart =
+    !outOfStock && products.find((p) => p.id === id)?.cantidad === stock;
 
   return (
     <>
       <span className="text-2xl font-bold">Bs. {precio}</span>
-      {stock > 0 ? (
-        <Chip color="success" variant="flat">
-          Disponible
-        </Chip>
-      ) : (
+      {outOfStock ? (
         <Chip color="danger" variant="flat">
           Agotado
         </Chip>
+      ) : fullInCart ? (
+        <Chip color="warning" variant="flat">
+          En el carrito
+        </Chip>
+      ) : (
+        <Chip color="success" variant="flat">
+          Disponible
+        </Chip>
       )}
       <NumberInput
-        key={2}
-        defaultValue={1}
+        key={id}
         errorMessage={"Cantidad no válida"}
-        isDisabled={stock === 0}
-        isInvalid={quantityValid}
+        isDisabled={outOfStock || fullInCart}
+        isInvalid={quantityInvalid}
         label="Cantidad"
-        labelPlacement={"outside-left"}
+        labelPlacement="outside-left"
         maxValue={stock}
         minValue={1}
-        onChange={(value) => handleQuantityChange(value)}
+        value={quantity === "" ? 1 : Number(quantity)}
+        onBlur={handleBlur}
+        onChange={handlerOnChange}
       />
       <Button
         color="warning"
-        isDisabled={stock === 0}
+        isDisabled={outOfStock || fullInCart}
         radius="full"
         size="lg"
-        onPress={handleAddToCart}
+        onPress={handleAddProduct}
       >
         Agregar al carrito
       </Button>
-      <Button color="success" isDisabled={stock === 0} radius="full" size="lg">
+      <Button
+        color="success"
+        isDisabled={outOfStock || fullInCart}
+        radius="full"
+        size="lg"
+      >
         Comprar ahora
       </Button>
     </>
