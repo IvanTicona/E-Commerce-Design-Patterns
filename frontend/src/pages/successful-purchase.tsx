@@ -1,6 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { Card, Button } from "@heroui/react";
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import emailjs from "emailjs-com";
 
@@ -21,13 +19,13 @@ const SuccessfulPurchase = () => {
   };
 
   const handleSendInvoice = () => {
-  
+
     if (!addressDetails || !paymentDetails || !cart) {
       console.error("Faltan datos para enviar el correo");
 
       return;
     }
-  
+
     const templateParams = {
       user_name: addressDetails.fullName,
       products_list: cartItems(),
@@ -44,8 +42,7 @@ const SuccessfulPurchase = () => {
       email: addressDetails.email,
     };
     console.log(templateParams.products_list);
-    
-  
+
     emailjs
       .send(
         "service_3qwm64h", // Reemplaza con tu Service ID de EmailJS
@@ -61,18 +58,20 @@ const SuccessfulPurchase = () => {
         console.error("Error al enviar correo:", error);
       });
 
-      setTimeout(() => {
-        localStorage.removeItem("cart");
-        sessionStorage.removeItem("addressDetails");
-        sessionStorage.removeItem("paymentDetails");
-        sessionStorage.removeItem("orderTotal");
-        sessionStorage.removeItem("orderTotalWithDiscount");
-        navigate("/");
-      }, 10000);
+    setTimeout(() => {
+      localStorage.removeItem("cart");
+      localStorage.removeItem("isQuickBuy")
+      sessionStorage.removeItem("addressDetails");
+      sessionStorage.removeItem("paymentDetails");
+      sessionStorage.removeItem("orderTotal");
+      sessionStorage.removeItem("orderTotalWithDiscount");
+      navigate("/");
+    }, 8000);
   };
 
   const handleContinueShopping = () => {
     localStorage.removeItem("cart");
+    localStorage.removeItem("isQuickBuy")
     sessionStorage.removeItem("addressDetails");
     sessionStorage.removeItem("paymentDetails");
     sessionStorage.removeItem("orderTotal");
@@ -81,17 +80,18 @@ const SuccessfulPurchase = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md text-center w-full max-w-2xl">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-zinc-800">
+      <div className="bg-white p-8 rounded-lg shadow-md text-center w-full max-w-2xl dark:bg-slate-900">
         <h2 className="text-2xl font-semibold text-green-600">¡Compra Exitosa! 🎉</h2>
-        <p className="mt-4 text-gray-600">Gracias por tu compra, {addressDetails?.fullName}. Tu pedido ha sido procesado con éxito.</p>
+        <p className="mt-4 text-gray-600">Gracias por tu compra, {addressDetails?.fullName}.</p>
+        <p className="text-gray-600"> Tu pedido ha sido procesado con éxito.</p>
         <p className="text-lg font-bold mt-2">Total pagado: ${orderTotalWithDiscount}</p>
         <p className="text-sm text-gray-500">(Precio original: ${orderTotal})</p>
 
         {/* Mostrar productos */}
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 ">
           {cart.map((item: { nombre: string; quantity: number; precio: number; imagen: string }, index: number) => (
-            <div key={index} className="flex justify-center items-center space-x-6 bg-gray-50 p-4 rounded-lg shadow-md">
+            <div key={index} className="flex justify-center items-center space-x-6 bg-gray-50 p-4 rounded-lg shadow-md dark:bg-slate-800">
               <img
                 alt={item.nombre}
                 className="w-24 h-24 object-cover rounded-md"

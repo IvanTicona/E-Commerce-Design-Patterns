@@ -57,9 +57,12 @@ const CartShop = () => {
     fetchProducts();
   }, []);
 
-  const handleRemoveFromCart = (_id: number) => {
-    const updatedCart = cart.filter((item) => item.id !== _id);
+  // Eliminar producto del carrito
+  const handleRemoveFromCart = (id: number) => {
+    // Obtener el carrito actual
+    const updatedCart = getCartFromStorage().filter((item: { id: number }) => item.id !== id);
 
+    // Actualizar carrito en localStorage y en el estado
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
   };

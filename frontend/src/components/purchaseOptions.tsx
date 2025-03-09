@@ -26,11 +26,12 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   // 🔹 Si el producto tiene descuento, calculamos el nuevo precio con el descuento aplicado
   const precioConDescuento = (precio * (1 - descuento)).toFixed(2);
 
+
   const [cart, setCart] = useState(() => {
     const storedCart = localStorage.getItem("cart");
-
     return storedCart ? JSON.parse(storedCart) : [];
   });
+
 
   const [quantity, setQuantity] = useState<number>(1);
   const [quantityValid, setQuantityValid] = useState(false);
@@ -48,7 +49,6 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
@@ -65,7 +65,6 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
     const cartItems = storedCart ? JSON.parse(storedCart) : [];
 
     const existingItem = cartItems.find((item: CartItem) => item.id === id);
-
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
@@ -112,15 +111,39 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
       </div>
 
       {/* Estado del stock */}
+      {}
+      <div className="flex flex-col items-start">
+        {tieneDescuento ? (
+          <>
+            {/* Si el producto tiene descuento, mostramos el precio original tachado */}
+            <span className="text-gray-500 line-through text-lg">
+              Bs. {precio.toFixed(2)}
+            </span>
+
+            {/* Mostramos el precio con descuento en rojo */}
+            <span className="text-red-500 font-bold text-2xl">
+              Bs. {precioConDescuento}
+            </span>
+
+            {/*  Mostramos el porcentaje de descuento en verde */}
+            <span className="text-green-600 font-semibold">
+              {Math.round(descuento * 100)}% OFF
+            </span>
+          </>
+        ) : (
+          // Si el producto NO tiene descuento, simplemente mostramos su precio normal
+          <span className="text-2xl font-bold">Bs. {precio.toFixed(2)}</span>
+        )}
+      </div>
+
+      {/* Estado del stock */}
       {stock > 0 ? (
-        <Chip color="success" variant="flat">
-          Disponible
-        </Chip>
+        <Chip color="success" variant="flat">Disponible</Chip>
       ) : (
-        <Chip color="danger" variant="flat">
-          Agotado
-        </Chip>
+        <Chip color="danger" variant="flat">Agotado</Chip>
       )}
+
+      {/* Selector de cantidad */}
 
       {/* Selector de cantidad */}
       <NumberInput
@@ -135,6 +158,8 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
       />
 
       {/* Botón para agregar al carrito */}
+
+      {/* Botón para agregar al carrito */}
       <Button
         color="warning"
         isDisabled={stock === 0 || quantityValid}
@@ -144,6 +169,8 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
       >
         Agregar al carrito
       </Button>
+
+      {/* Botón para comprar ahora */}
 
       {/* Botón para comprar ahora */}
       <Button
