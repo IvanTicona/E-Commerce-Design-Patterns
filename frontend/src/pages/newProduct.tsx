@@ -2,6 +2,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState } from "react";
 import axios from "axios";
+import { Button, Form, Input } from "@heroui/react";
+
+import DefaultLayout from "@/layouts/default";
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
@@ -56,90 +59,103 @@ const ProductForm = () => {
   };
 
   return (
-    <div>
+    <DefaultLayout>
       <h2>Crear Producto</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre:</label>
-          <input
-            required
-            name="nombre"
-            type="text"
-            value={formData.nombre}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Descripción:</label>
-          <input
-            name="descripcion"
-            type="text"
-            value={formData.descripcion}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Precio:</label>
-          <input
-            required
-            name="precio"
-            type="number"
-            value={formData.precio}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Categoría:</label>
-          <input
-            required
-            name="categoria"
-            type="text"
-            value={formData.categoria}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Stock:</label>
-          <input
-            required
-            name="stock"
-            type="number"
-            value={formData.stock}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Rating:</label>
-          <input
-            required
-            name="rating"
-            type="number"
-            value={formData.rating}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Oferta (Descuento):</label>
-          <input
-            name="offerDiscount"
-            type="number"
-            value={formData.offerDiscount}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Imagen:</label>
-          <input accept="image/*" type="file" onChange={handleFileChange} />
-        </div>
-        <button type="submit">Crear Producto</button>
-      </form>
+
+      <Form className="w-96 m-auto" onSubmit={handleSubmit}>
+        <Input
+          isRequired
+          label="Nombre"
+          labelPlacement="outside"
+          name="nombre"
+          placeholder="Nombre del producto"
+          type="text"
+          value={formData.nombre}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          label="Descripción"
+          labelPlacement="outside"
+          name="descripcion"
+          placeholder="Descripción del producto"
+          type="text"
+          value={formData.descripcion}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          label="Precio"
+          labelPlacement="outside"
+          name="precio"
+          placeholder="0.00"
+          startContent={
+            <div className="pointer-events-none flex items-center">
+              <span className="text-default-400 text-small">$</span>
+            </div>
+          }
+          type="number"
+          value={formData.precio}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          label="Categoría"
+          labelPlacement="outside"
+          name="categoria"
+          placeholder="Ej: Tecnología"
+          type="text"
+          value={formData.categoria}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          label="Stock"
+          labelPlacement="outside"
+          name="stock"
+          placeholder="0"
+          type="number"
+          value={formData.stock}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          label="Rating"
+          labelPlacement="outside"
+          name="rating"
+          placeholder="0.0"
+          type="number"
+          value={formData.rating}
+          onChange={handleChange}
+        />
+        <Input
+          label="Descuento"
+          labelPlacement="outside"
+          name="offerDiscount"
+          placeholder="0.0"
+          type="number"
+          value={formData.offerDiscount}
+          onChange={handleChange}
+        />
+        <Input
+          isRequired
+          accept="image/*"
+          label="Imagen"
+          labelPlacement="outside"
+          type="file"
+          onChange={handleFileChange}
+        />
+        <Button color="primary" type="submit">
+          Crear Producto
+        </Button>
+      </Form>
       {responseMessage && (
         <div>
           <h3>Respuesta del servidor:</h3>
           <pre>{responseMessage}</pre>
         </div>
       )}
-    </div>
+    </DefaultLayout>
   );
 };
 
