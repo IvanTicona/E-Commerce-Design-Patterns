@@ -29,7 +29,10 @@ function App() {
           <Route element={<OffersPage />} path="/offers" />
           <Route element={<ProductPage />} path="/product/:id" />
           <Route element={<CheckoutPage />} path="/checkout" />
-          <Route element={<SuccessfulPurchasePage />} path="/successful-purchase" />
+          <Route
+            element={<SuccessfulPurchasePage />}
+            path="/successful-purchase"
+          />
           {/* Nueva ruta para los resultados de búsqueda */}
           <Route element={<SearchResults />} path="/search" />
           {/* ListadoProductos */}

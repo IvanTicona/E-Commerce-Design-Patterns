@@ -15,6 +15,14 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Calcular el precio con descuento si el producto tiene un descuento
+  const precioConDescuento = product
+    ? (product.price * (1 - product.discount)).toFixed(2)
+    : "0.00";
+
+  // Verificar si el producto tiene descuento
+  const tieneDescuento = (product?.discount ?? 0) > 0;
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -53,19 +61,17 @@ const ProductPage = () => {
         <div className="col-span-2 row-span-5">
           <Image
             isZoomed
-            alt={products[index].nombre}
+            alt={product.name}
             className="w-full"
-            src={products[index].imagen}
+            src={product.images[0]}
           />
         </div>
 
         {/* Información del producto */}
         <div className="col-span-3 row-span-5 col-start-3">
-          <h3 className="text-3xl font-medium">{products[index].nombre}</h3>
-          <p className="text-lg font-light">
-            Categoría: {products[index].categoria}
-          </p>
-          <Rating rating={products[index].rating} />
+          <h3 className="text-3xl font-medium">{product.name}</h3>
+          <p className="text-lg font-light">Categoría: {product.category}</p>
+          <Rating rating={product.rating} />
           <Divider className="my-5" />
 
           {/* Mostrar precio correctamente según si tiene descuento o no */}
@@ -74,7 +80,7 @@ const ProductPage = () => {
               // Si el producto tiene descuento, mostrar precio original tachado y precio en rojo
               <>
                 <p className="text-gray-500 line-through text-lg">
-                  Bs. {product.precio.toFixed(2)}
+                  Bs. {product.price.toFixed(2)}
                 </p>
                 <p className="text-red-500 font-bold text-2xl">
                   Bs. {precioConDescuento}
@@ -83,7 +89,7 @@ const ProductPage = () => {
             ) : (
               // Si NO tiene descuento, mostrar solo el precio normal en negro
               <p className="text-black text-2xl font-bold">
-                Bs. {product.precio.toFixed(2)}
+                Bs. {product.price.toFixed(2)}
               </p>
             )}
           </div>
@@ -91,7 +97,7 @@ const ProductPage = () => {
           {/* Mostrar porcentaje de descuento solo si el producto tiene descuento */}
           {tieneDescuento && (
             <p className="text-green-600 font-semibold">
-              {Math.round(product.descuento * 100)}% OFF
+              {Math.round(product.discount * 100)}% OFF
             </p>
           )}
 
