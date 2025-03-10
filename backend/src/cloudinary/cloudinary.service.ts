@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 // cloudinary.service.ts
@@ -9,12 +7,10 @@ import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
 @Injectable()
 export class CloudinaryService {
   constructor() {
-    // Configura tus credenciales utilizando variables de entorno para seguridad
     const configOptions: ConfigOptions = {
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dh5yi2gmk', // Ej: 'mi-cloud-name'
-      api_key: process.env.CLOUDINARY_API_KEY || '926592761833835', // Ej: '1234567890'
-      api_secret:
-        process.env.CLOUDINARY_API_SECRET || '8GGzlQE08Mzf8K0tyDtC2wTl_d0', // Ej: 'miApiSecret'
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     };
     cloudinary.config(configOptions);
   }
