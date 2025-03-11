@@ -8,6 +8,8 @@ import LandingPage from "@/pages/landing";
 import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
+import AddressPage from "./pages/address";
+import VerifyPurchasePage from "./pages/verifyPurchase";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route element={<OffersPage />} path="/offers" />
         <Route element={<ProductPage />} path="/product/:id" />
         <Route element={<ProductForm />} path="/new-product" />
+        <Route element={<AddressPage />} path="/address" />
+        <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
         {/* ListadoProductos */}
         {/* DetalleProducto */}
         {/* CategoriasProducto */}

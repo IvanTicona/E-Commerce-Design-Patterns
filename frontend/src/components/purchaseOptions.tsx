@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Chip, NumberInput } from "@heroui/react";
 
+import { useNavigate } from "react-router";
 import { useCart } from "@/context/cartContext";
 
 interface PurchaseOptionsProps {
@@ -17,6 +18,8 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   const [quantity, setQuantity] = useState<string>("1");
   const [quantityInvalid, setQuantityInvalid] = useState(false);
   const { addProduct, products } = useCart();
+
+  const navigate = useNavigate();
 
   const handlerOnChange = (
     valueOrEvent: number | React.ChangeEvent<HTMLInputElement>,
@@ -68,6 +71,16 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
     addProduct(newProduct);
   };
 
+  const handleBuyNow = () => {
+    const newProduct = {
+      id,
+      precio,
+      cantidad: Number(quantity),
+    };
+
+    navigate("/address", { state: { buyNow: true, product: newProduct } });
+  };
+
   const outOfStock = stock === 0;
   const fullInCart =
     !outOfStock && products.find((p) => p.id === id)?.cantidad === stock;
@@ -115,6 +128,7 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
         isDisabled={outOfStock || fullInCart}
         radius="full"
         size="lg"
+        onPress={handleBuyNow}
       >
         Comprar ahora
       </Button>
