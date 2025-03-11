@@ -3,36 +3,42 @@ import "animate.css";
 
 import { CartProvider } from "./context/cartContext";
 import ProductForm from "./pages/newProduct";
+import { PurchaseProductProvider } from "./context/purchaseProductContext";
+import { BuyNowProvider } from "./context/buyNowContext";
+import AddressPage from "./pages/address";
+import VerifyPurchasePage from "./pages/verifyPurchase";
 
 import LandingPage from "@/pages/landing";
 import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
-import AddressPage from "./pages/address";
-import VerifyPurchasePage from "./pages/verifyPurchase";
 
 function App() {
   return (
     <CartProvider>
-      <Routes>
-        <Route element={<LandingPage />} path="/" />
-        <Route element={<CategoryPage />} path="/category" />
-        <Route element={<OffersPage />} path="/offers" />
-        <Route element={<ProductPage />} path="/product/:id" />
-        <Route element={<ProductForm />} path="/new-product" />
-        <Route element={<AddressPage />} path="/address" />
-        <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
-        {/* ListadoProductos */}
-        {/* DetalleProducto */}
-        {/* CategoriasProducto */}
-        {/* ResultadosBusqueda */}
-        {/* ResumenCarrito */}
-        {/* CheckoutCarrito */}
-        {/* MetodoDePago */}
-        {/* DatosDePag */}
-        {/* ConfirmacionDePago */}
-        {/* Notificaciones */}
-      </Routes>
+      <BuyNowProvider>
+        <PurchaseProductProvider>
+          <Routes>
+            <Route element={<LandingPage />} path="/" />
+            <Route element={<CategoryPage />} path="/category" />
+            <Route element={<OffersPage />} path="/offers" />
+            <Route element={<ProductPage />} path="/product/:id" />
+            <Route element={<ProductForm />} path="/new-product" />
+            <Route element={<AddressPage />} path="/address" />
+            <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
+            {/* ListadoProductos */}
+            {/* DetalleProducto */}
+            {/* CategoriasProducto */}
+            {/* ResultadosBusqueda */}
+            {/* ResumenCarrito */}
+            {/* CheckoutCarrito */}
+            {/* MetodoDePago */}
+            {/* DatosDePag */}
+            {/* ConfirmacionDePago */}
+            {/* Notificaciones */}
+          </Routes>
+        </PurchaseProductProvider>
+      </BuyNowProvider>
     </CartProvider>
   );
 }

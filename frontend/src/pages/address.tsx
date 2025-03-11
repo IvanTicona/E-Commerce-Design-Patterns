@@ -8,7 +8,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 
 import DefaultLayout from "@/layouts/default";
 
@@ -73,7 +73,7 @@ const AddressPage = () => {
 
     setSubmitted(data);
 
-    navigate("/verify-purchase", { state: { formData: data } });
+    navigate("/verify-purchase");
   };
 
   return (
@@ -85,7 +85,6 @@ const AddressPage = () => {
         <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-6">
           Dirección de entrega
         </h2>
-
         <Form
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
           onReset={() => setSubmitted(null)}

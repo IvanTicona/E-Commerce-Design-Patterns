@@ -15,14 +15,15 @@ import { useEffect, useState } from "react";
 import CartIcon from "@/icons/cartIcon";
 import { useCart } from "@/context/cartContext";
 import { Product } from "@/interface/product";
+import { useLocation, useNavigate } from "react-router";
 
 const CartShop = () => {
+  const navigate = useNavigate();
   const [cart, setCart] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { products: productsOnCart, clearCart } = useCart();
-
   const handleOpen = () => {
     onOpen();
   };
@@ -30,6 +31,11 @@ const CartShop = () => {
   useEffect(() => {
     setCart(productsOnCart.length);
   }, [productsOnCart]);
+
+  const handleCheckoutCart = () => {
+    navigate("/address", { state: { productsOnCart } });
+    onClose();
+  };
 
   return (
     <>
@@ -99,7 +105,7 @@ const CartShop = () => {
                 <Button color="warning" variant="light" onPress={onClose}>
                   Continuar
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onPress={handleCheckoutCart}>
                   Checkout
                 </Button>
               </ModalFooter>
