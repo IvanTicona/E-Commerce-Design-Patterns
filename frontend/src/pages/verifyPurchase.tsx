@@ -8,8 +8,10 @@ import {
   Divider,
   Button,
   Skeleton,
+  Image,
 } from "@heroui/react";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 import DefaultLayout from "@/layouts/default";
 import { useBuyNow } from "@/context/buyNowContext";
@@ -18,6 +20,8 @@ import { Product } from "@/interface/product";
 import { PurchaseProduct } from "@/interface/purchaseProduct";
 
 const VerifyPurchasePage = () => {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const { buyNow, clearBuyNow } = useBuyNow();
   const { products: cartProducts } = useCart();
@@ -29,7 +33,6 @@ const VerifyPurchasePage = () => {
     const fetchProducts = async () => {
       try {
         if (buyNow) {
-          // Si hay buyNow, hacemos el fetch del producto y asignamos la cantidad de buyNow
           const response = await axios.get<Product & { _id: string }>(
             `http://localhost:3000/products/${buyNow.id}`
           );
@@ -46,7 +49,6 @@ const VerifyPurchasePage = () => {
 
           setProducts([product]);
         } else if (cartProducts && cartProducts.length > 0) {
-          // Si es del carrito, se itera sobre cada item, se hace fetch por cada id
           const fetchedProducts = await Promise.all(
             cartProducts.map(async (cartProduct) => {
               const response = await axios.get<Product & { _id: string }>(
@@ -77,9 +79,8 @@ const VerifyPurchasePage = () => {
     };
 
     fetchProducts();
-  }, [buyNow, cartProducts, clearBuyNow]);
+  }, []);
 
-  // Cálculo de totales (por si deseas mostrar un resumen global)
   const subtotal = products.reduce(
     (acc, product) => acc + product.price * product.quantity,
     0
@@ -91,35 +92,38 @@ const VerifyPurchasePage = () => {
   return (
     <DefaultLayout>
         <div className="container mx-auto p-4 flex flex-col md:flex-row gap-6">
-        <div className="md:w-1/2 bg-gray-100 p-4 rounded shadow">
-          <h2 className="text-2xl font-bold mb-4">Verificar Pedido</h2>
+        <div className="bg-gray-100 p-4 rounded shadow max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Verificar Pedido</h2>
           {loading ? (
             <Skeleton className="h-40 w-full" />
           ) : (
-            products.map((product) => (
-              <Card key={product.id}>
-                <CardHeader>
-                  <h3 className="text-lg font-bold">{product.name}</h3>
-                </CardHeader>
-                <CardBody>
-                  <img
-                    alt={product.name}
-                    className="w-full h-32 object-cover rounded mb-2"
-                    src={product.imagen}
-                  />
-                  <p>{product.description}</p>
-                  <p>
-                    <strong>Cantidad:</strong> {product.quantity}
-                  </p>
-                  <p>
-                    <strong>Precio Unitario:</strong> ${product.price}
-                  </p>
-                  <p>
-                    <strong>Subtotal:</strong> ${subtotal}
-                  </p>
-                </CardBody>
-              </Card>
-            ))
+            <div className="space-y-4">
+              {products.map((product) => (
+                <Card
+                  key={product.id}
+                  className="w-full border rounded-md shadow p-4"
+                >
+                  <div className="flex justify-end">
+                    <Button size="sm" onPress={() => navigate(`/product/${product.id}`)}>
+                      Revisar pedido
+                    </Button>
+                  </div>
+                  <div className="mt-4 flex">
+                    <Image
+                      alt={product.name}
+                      className="w-36 h-36 object-cover rounded"
+                      src={product.imagen}
+                    />
+                    <div className="ml-6 flex flex-col space-y-1">
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
+                      <p className="text-gray-600">{product.description}</p>
+                      <p className="text-gray-600">Cantidad: {product.quantity}</p>
+                      <p className="text-gray-600">Precio Unitario: ${product.price}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
 
