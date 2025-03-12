@@ -91,9 +91,9 @@ const VerifyPurchasePage = () => {
 
   return (
     <DefaultLayout>
-        <div className="container mx-auto p-4 flex flex-col md:flex-row gap-6">
-        <div className="bg-gray-100 p-4 rounded shadow max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4">Verificar Pedido</h2>
+      <div className="container mx-auto p-4 flex flex-col md:flex-row gap-6 ">
+        <div className="bg-gray-100 p-4 rounded shadow max-w-2xl mx-auto dark:bg-neutral-900">
+          <h2 className="text-2xl font-bold mb-4 dark:bg-neutral-900">Verificar Pedido</h2>
           {loading ? (
             <Skeleton className="h-40 w-full" />
           ) : (
@@ -101,7 +101,7 @@ const VerifyPurchasePage = () => {
               {products.map((product) => (
                 <Card
                   key={product.id}
-                  className="w-full border rounded-md shadow p-4"
+                  className={`border p-4 rounded-lg shadow-md transition-colors duration-300 border-gray-800`}
                 >
                   <div className="flex justify-end">
                     <Button size="sm" onPress={() => navigate(`/product/${product.id}`)}>
@@ -128,59 +128,59 @@ const VerifyPurchasePage = () => {
         </div>
 
         <div className="md:w-1/2">
-            <Skeleton className = "rounded-lg" isLoaded={!loading} >
+          <Skeleton className="rounded-lg" isLoaded={!loading} >
             <Card>
-                <CardHeader>
-                    <h2 className="text-xl font-bold">Dirección de Envío</h2>
-                </CardHeader>
-                <CardBody>
-                    {localStorage.getItem("addressData") ? (
-                        <div className="mb-4">
-                        <p>{addressData.name}</p>
-                        <p>{addressData.address1}</p>
-                        {addressData.address2 && <p>{addressData.address2}</p>}
-                        <p>
-                            {addressData.city}, {addressData.zip}
-                        </p>
-                        <p>{addressData.country}</p>
-                        <p>{addressData.phone}</p>
-                        <p>{addressData.email}</p>
-                        </div>
-                    ) : (
-                        <p>No se ha proporcionado la dirección</p>
-                    )}
-                    <Divider className="my-4" />
-                    <h3 className="text-lg font-bold mb-2">Resumen del Pedido</h3>
+              <CardHeader>
+                <h2 className="text-xl font-bold">Dirección de Envío</h2>
+              </CardHeader>
+              <CardBody>
+                {localStorage.getItem("addressData") ? (
+                  <div className="mb-4">
+                    <p>{addressData.name}</p>
+                    <p>{addressData.address1}</p>
+                    {addressData.address2 && <p>{addressData.address2}</p>}
                     <p>
-                        <strong>Número de productos:</strong> {products.length}
+                      {addressData.city}, {addressData.zip}
                     </p>
-                    <p>
-                        <strong>Subtotal:</strong> ${subtotal.toFixed(2)}
-                    </p>
-                    <p>
-                        <strong>Impuestos (15%):</strong> ${taxes}
-                    </p>
-                    <p>
-                        <strong>Total:</strong> ${total}
-                    </p>
-                    </CardBody>
+                    <p>{addressData.country}</p>
+                    <p>{addressData.phone}</p>
+                    <p>{addressData.email}</p>
+                  </div>
+                ) : (
+                  <p>No se ha proporcionado la dirección</p>
+                )}
+                <Divider className="my-4" />
+                <h3 className="text-lg font-bold mb-2">Resumen del Pedido</h3>
+                <p>
+                  <strong>Número de productos:</strong> {products.length}
+                </p>
+                <p>
+                  <strong>Subtotal:</strong> ${subtotal.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Impuestos (15%):</strong> ${taxes}
+                </p>
+                <p>
+                  <strong>Total:</strong> ${total}
+                </p>
+              </CardBody>
 
-                <CardFooter className="flex flex-col items-center">
-                    <Button color="primary" size="lg">
-                    Ir a método de pago
-                    </Button>
-                    <p className="text-sm text-gray-500 mt-2 text-center">
-                    Al hacer click en &quot;Ir a método de pago&quot; aceptas nuestros términos
-                    y condiciones.
-                    </p>
-                </CardFooter>
+              <CardFooter className="flex flex-col items-center">
+                <Button color="primary" size="lg">
+                  Ir a método de pago
+                </Button>
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  Al hacer click en &quot;Ir a método de pago&quot; aceptas nuestros términos
+                  y condiciones.
+                </p>
+              </CardFooter>
             </Card>
-            </Skeleton>
+          </Skeleton>
         </div>
-        </div>
+      </div>
 
     </DefaultLayout>
-    
+
   );
 };
 
