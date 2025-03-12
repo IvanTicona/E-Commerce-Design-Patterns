@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './product/product.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatBotModule } from './chatBot/chatbot.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
       `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@ecommerce.atu6c.mongodb.net/?retryWrites=true&w=majority&appName=ecommerce`,
     ),
     ProductModule,
+    ChatBotModule,
   ],
   controllers: [AppController],
   providers: [AppService],
