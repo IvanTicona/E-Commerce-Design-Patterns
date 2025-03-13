@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   Badge,
   Button,
@@ -23,7 +24,7 @@ const CartShop = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { products: productsOnCart, clearCart } = useCart();
+  const { products: productsOnCart, clearCart, removeProduct } = useCart();
   const handleOpen = async () => {
     onOpen();
   };
@@ -70,7 +71,7 @@ const CartShop = () => {
       </Badge>
       <Modal
         classNames={{
-          body: "max-h-[70vh] overflow-y-auto",
+          body: "max-h-[70vh] overflow-y-auto gap-5",
         }}
         isOpen={isOpen}
         onClose={onClose}
@@ -88,7 +89,7 @@ const CartShop = () => {
                   products.map((product) => (
                     <Card
                       key={product.id}
-                      className="border-none w-full min-h-32 rounded-none"
+                      className="border-none w-full min-h-32 shadow-lg rounded-md"
                       shadow="none"
                     >
                       <div className="flex items-center gap-2">
@@ -104,6 +105,9 @@ const CartShop = () => {
                             className="font-light border"
                             color="danger"
                             variant="bordered"
+                            onPress={() => {
+                              removeProduct(product.id);
+                            }}
                           >
                             Quitar del carrito
                           </Button>
