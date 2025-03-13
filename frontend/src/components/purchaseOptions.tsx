@@ -20,7 +20,6 @@ const PurchaseOptions: React.FC<PurchaseOptionsProps> = ({
   const [quantityInvalid, setQuantityInvalid] = useState(false);
   const { addProduct, products } = useCart();
   const { setBuyNow } = useBuyNow();
-  console.log(id, stock, precio, quantity);
 
   const navigate = useNavigate();
 
