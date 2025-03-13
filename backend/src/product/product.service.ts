@@ -27,8 +27,6 @@ export class ProductService {
     return createdProduct.save();
   }
 
-  // Otros métodos (findAll, findOne, update, delete, etc.) pueden ser definidos aquí.
-
   async findAll(): Promise<Product[]> {
     return this.productModel.find().exec();
   }

@@ -46,7 +46,11 @@ const AddressPage = () => {
           },
         );
 
-        setCountries(sortedCountries);
+        const filteredCountries = JSON.parse(
+          JSON.stringify(sortedCountries),
+        )
+
+        setCountries(filteredCountries);
       } catch (error) {
         alert("Error al obtener países: " + (error as any).message);
       }

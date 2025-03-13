@@ -11,11 +11,11 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 import CartIcon from "@/icons/cartIcon";
 import { useCart } from "@/context/cartContext";
 import { Product } from "@/interface/product";
-import { useLocation, useNavigate } from "react-router";
 
 const CartShop = () => {
   const navigate = useNavigate();
