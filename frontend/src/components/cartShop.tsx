@@ -124,7 +124,11 @@ const CartShop = () => {
                 <Button color="warning" variant="light" onPress={onClose}>
                   Continuar
                 </Button>
-                <Button color="primary" onPress={handleCheckoutCart}>
+                <Button
+                  color="primary"
+                  isDisabled={products.length === 0}
+                  onPress={handleCheckoutCart}
+                >
                   Checkout
                 </Button>
               </ModalFooter>
