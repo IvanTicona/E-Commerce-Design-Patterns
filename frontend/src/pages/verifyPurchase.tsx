@@ -49,6 +49,7 @@ const VerifyPurchasePage = () => {
           };
 
           setProducts([product]);
+          localStorage.removeItem("cart");
         } else if (cartProducts && cartProducts.length > 0) {
           const fetchedProducts = await Promise.all(
             cartProducts.map(async (cartProduct) => {
@@ -71,6 +72,7 @@ const VerifyPurchasePage = () => {
           );
 
           setProducts(fetchedProducts);
+          clearBuyNow();
         }
       } catch {
         throw new Error("Error al obtener los productos");
