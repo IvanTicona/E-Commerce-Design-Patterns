@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import { Product } from "@/interface/product";
+import ChatBot from "@/components/chatBot";
 
 const LandingPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -40,6 +41,7 @@ const LandingPage = () => {
 
   return (
     <DefaultLayout>
+      <ChatBot />
       <div className="flex gap-4 flex-wrap">
         {products.map((item) => (
           <Skeleton key={item.id} className="rounded-lg" isLoaded={!loading}>

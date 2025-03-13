@@ -7,7 +7,7 @@ export class ChatBotController {
   constructor(private readonly chatBotService: ChatBotService) {}
 
   @Post("ask") 
-  async askAI(@Body() body: { messages: { role: string; content: string }[] }) {
+  async askAI(@Body() body: { messages: string}) {
     const response = await this.chatBotService.getAIResponse(body.messages);
     return { text: response }; 
   }

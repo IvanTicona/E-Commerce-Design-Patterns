@@ -7,12 +7,12 @@ export class ChatBotService {
   private genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
   private model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-  async getAIResponse(messages: { role: string; content: string }[]): Promise<string> {
+  async getAIResponse(message: string): Promise<string> {
     try {
       const result = await this.model.generateContent({
-        contents: messages.map((msg) => ({ role: msg.role, parts: [{ text: msg.content }] })),
+        contents: [{ role: "user", parts: [{ text: message }] }],
       });
-
+  
       return result.response.text();
     } catch (error) {
       console.error("Error con Gemini API:", error);
