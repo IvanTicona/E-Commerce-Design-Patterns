@@ -121,8 +121,8 @@ const LandingPage = () => {
                 {recyclers[currentIndex].desc}
               </h2>
               <Button
-                color="primary"
                 className="my-8 px-8 py-4 text-lg"
+                color="primary"
                 onPress={handleButtonClick}
               >
                 {recyclers[currentIndex].buttonDesc}

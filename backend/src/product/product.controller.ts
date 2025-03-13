@@ -7,6 +7,7 @@ import {
   UploadedFile,
   Get,
   Param,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductService } from './product.service';
@@ -18,6 +19,11 @@ export class ProductController {
   @Get()
   async findAll() {
     return this.productService.findAll();
+  }
+
+  @Get('search')
+  async searchProducts(@Query('query') query: string) {
+    return this.productService.search(query);
   }
 
   @Get(':id')

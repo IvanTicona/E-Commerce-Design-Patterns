@@ -38,4 +38,10 @@ export class ProductService {
     }
     return product;
   }
+
+  async search(query: string): Promise<Product[]> {
+    return this.productModel
+      .find({ nombre: { $regex: query, $options: 'i' } })
+      .exec();
+  }
 }

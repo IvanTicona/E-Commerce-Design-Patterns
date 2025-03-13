@@ -12,7 +12,8 @@ import LandingPage from "@/pages/landing";
 import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
-import PackageState from "./pages/packageState";
+import PackageState from "@/pages/packageState";
+import SearchResult from "@/pages/searchResult";
 
 function App() {
   return (
@@ -27,17 +28,8 @@ function App() {
             <Route element={<ProductForm />} path="/new-product" />
             <Route element={<AddressPage />} path="/address" />
             <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
-            <Route element={<PackageState/>} path="/package"/>
-            {/* ListadoProductos */}
-            {/* DetalleProducto */}
-            {/* CategoriasProducto */}
-            {/* ResultadosBusqueda */}
-            {/* ResumenCarrito */}
-            {/* CheckoutCarrito */}
-            {/* MetodoDePago */}
-            {/* DatosDePag */}
-            {/* ConfirmacionDePago */}
-            {/* Notificaciones */}
+            <Route element={<PackageState />} path="/package" />
+            <Route element={<SearchResult />} path="/search" />
           </Routes>
         </PurchaseProductProvider>
       </BuyNowProvider>
