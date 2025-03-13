@@ -163,7 +163,6 @@ const LandingPage = () => {
                 <p className="text-default-500 text-lg">Bs.{item.precio}</p>
               </CardFooter>
             </Card>
-            <ChatBot />
           </Skeleton>
         ))}
       </div>

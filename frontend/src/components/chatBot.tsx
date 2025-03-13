@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useState } from "react";
-import { Button, Avatar } from "@heroui/react";
+import { Button } from "@heroui/react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MessageList,
@@ -9,12 +9,16 @@ import {
   ChatContainer,
   MainContainer,
   ConversationHeader,
+  Avatar,
 } from "@chatscope/chat-ui-kit-react";
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useNavigate } from "react-router";
 
 import { promptTexto } from "@/prompts/prompt";
 
 const ChatBot = () => {
+  const navigate = useNavigate();
+
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,10 +27,35 @@ const ChatBot = () => {
   const genAI = new GoogleGenerativeAI("AIzaSyDYrsE7xPZUu3BiPZk4vvLe0OT7SA5KUyw");
   const model = genAI?.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
+
+  // Función para extraer la categoría del mensaje del usuario usando IA
+  const extractCategoryFromMessage = async (message: string): Promise<string | null> => {
+    const extractionPrompt = `Extrae solo la palabra que representa la categoría de producto del siguiente mensaje. Si no encuentras ninguna, responde "none". Mensaje: "${message}"`;
+
+    try {
+      const extractionResult = await model?.generateContent(extractionPrompt);
+      const category = await extractionResult?.response.text();
+
+      return category?.trim() || null;
+    } catch (error) {
+      console.error("Error extrayendo la categoría", error);
+
+      return null;
+    }
+  };
+  
   const handleSend = async (messageText: string) => {
     setMessages((prev) => [...prev, { role: "user", content: messageText }]);
     setMessages((prev) => [...prev, { role: "model", content: "Escribiendo..." }]);
     setIsLoading(true);
+
+    // Llama a la función para extraer la categoría desde el mensaje del usuario
+    const extractedCategory = await extractCategoryFromMessage(messageText);
+    if (extractedCategory && extractedCategory.toLowerCase() !== "none") {
+      // Navega a la pantalla de categoría pasando el valor extraído
+      // Puedes pasar el valor vía state o query params según cómo hayas configurado CategoryPage
+      navigate("/category", { state: { category: extractedCategory } });
+    }
 
     let inputMessage = messages.length === 0
       ? `${CHATBOT_PROMPT}\nUsuario: ${messageText}`
@@ -74,7 +103,6 @@ const ChatBot = () => {
         <div className="absolute bottom-12 right-0 w-80 bg-white rounded-lg shadow-lg overflow-hidden">
           <MainContainer style={{ height: "500px" }}>
             <ChatContainer>
-              {/* Encabezado del chat con componente adecuado */}
               <ConversationHeader>
                 <ConversationHeader.Content>
                   Asistente E-commerce

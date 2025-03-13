@@ -1,6 +1,7 @@
 import { Link } from "@heroui/link";
 
 import { Navbar } from "@/components/navbar";
+import ChatBot from "@/components/chatBot";
 
 export default function DefaultLayout({
   children,
@@ -24,6 +25,7 @@ export default function DefaultLayout({
           <p className="text-primary">HeroUI</p>
         </Link>
       </footer>
+      <ChatBot />
     </div>
   );
 }

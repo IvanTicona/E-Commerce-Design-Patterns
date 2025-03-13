@@ -118,7 +118,7 @@ const VerifyPurchasePage = () => {
                       <h3 className="text-lg font-semibold">{product.name}</h3>
                       <p className="text-gray-600">{product.description}</p>
                       <p className="text-gray-600">Cantidad: {product.quantity}</p>
-                      <p className="text-gray-600">Precio Unitario: ${product.price}</p>
+                      <p className="text-gray-600">Precio Unitario: Bs.{product.price}</p>
                     </div>
                   </div>
                 </Card>
@@ -155,13 +155,13 @@ const VerifyPurchasePage = () => {
                   <strong>Número de productos:</strong> {products.length}
                 </p>
                 <p>
-                  <strong>Subtotal:</strong> ${subtotal.toFixed(2)}
+                  <strong>Subtotal:</strong> Bs.{subtotal.toFixed(2)}
                 </p>
                 <p>
-                  <strong>Impuestos (15%):</strong> ${taxes}
+                  <strong>Impuestos (15%):</strong> Bs.{taxes}
                 </p>
                 <p>
-                  <strong>Total:</strong> ${total}
+                  <strong>Total:</strong> Bs.{total}
                 </p>
               </CardBody>
 
