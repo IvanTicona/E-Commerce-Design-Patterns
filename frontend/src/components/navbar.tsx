@@ -29,7 +29,7 @@ export const Navbar = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="xl" position="sticky" className="bg-gray-200 dark:bg-neutral-900">
       <div className="lg:flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
           <Link
