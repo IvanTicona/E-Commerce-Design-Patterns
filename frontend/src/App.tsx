@@ -14,6 +14,8 @@ import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
 import PackageState from "@/pages/packageState";
 import SearchResult from "@/pages/searchResult";
+import PaymentPage from "./pages/payment";
+
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
             <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
             <Route element={<PackageState />} path="/package" />
             <Route element={<SearchResult />} path="/search" />
+            <Route element={<PaymentPage />} path="/payment" />
           </Routes>
         </PurchaseProductProvider>
       </BuyNowProvider>
