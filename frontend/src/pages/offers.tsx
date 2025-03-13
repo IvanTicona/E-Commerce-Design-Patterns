@@ -41,9 +41,12 @@ const OffersPage = () => {
 
   return (
     <DefaultLayout>
-      <h2 className="text-3xl font-bold text-center my-6">
-        Ofertas Especiales
-      </h2>
+      <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 m-10 text-center">
+        Ofertas Especiales!
+      </h1>
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 m-10">
+        Tenemos descuentos grandes y no tan grandes para tí 🦆👍
+      </h1>
       <div className="animate__animated animate__fadeIn grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
         {loading ? (
           [...Array(4)].map((_, i) => (

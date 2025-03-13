@@ -22,7 +22,7 @@ const recyclers = [
     buttonDesc: "Comienza a explorar",
   },
   {
-    title: "Explora en nuestras diveras categorías!",
+    title: "Explora en nuestras diversas categorías!",
     desc: "Contamos con una gran variedad de categorías y productos.\nPeluches, coleccionables, merchandicing...\nLo tenemos todo 🐢✨",
     buttonDesc: "Explorar categorías",
   },
