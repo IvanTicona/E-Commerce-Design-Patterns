@@ -90,7 +90,7 @@ const LandingPage = () => {
               <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200" style={{ whiteSpace: 'pre-line'}}>
                 {recyclers[currentIndex].desc}
               </h2>
-              <Button className="bg-blue-500 text-white hover:bg-blue-600 my-8 px-4 py-2 rounded"
+              <Button color="primary" className="my-8 px-8 py-4 text-lg" 
                 onPress={handleButtonClick}>
                 {recyclers[currentIndex].buttonDesc}
               </Button>
