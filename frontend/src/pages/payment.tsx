@@ -1,198 +1,262 @@
+/* eslint-disable no-console */
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Card,
   CardHeader,
   CardBody,
   CardFooter,
   Divider,
   Button,
-  Alert,
+  Skeleton,
   Image,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Input,
-  Select,
-  SelectItem,
+  Alert,
   useDisclosure,
 } from "@heroui/react";
-import DefaultLayout from "@/layouts/default";
-import { useNavigate } from "react-router-dom";
-import PaymentForm from "@/components/paymentForm";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
-const PaymentPage = () => {
+import DefaultLayout from "@/layouts/default";
+import { useBuyNow } from "@/context/buyNowContext";
+import { useCart } from "@/context/cartContext";
+import { Product } from "@/interface/product";
+import { PurchaseProduct } from "@/interface/purchaseProduct";
+import PaypaylIcon from "@/icons/paypaylIcon";
+import CardIcon from "@/icons/cardIcon";
+import CryptoIcon from "@/icons/cryptoIcon";
+import { title } from "@/components/primitives";
+import CryptoBody from "@/components/payments/cryptoBody";
+import PaypalBody from "@/components/payments/paypalBody";
+import CardpayBody from "@/components/payments/cardpayBody";
+
+const VerifyPurchasePage = () => {
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [showProcessingAlert, setShowProcessingAlert] = useState(true);
-  const [modalType, setModalType] = useState("");
-  const [selectedCrypto, setSelectedCrypto] = useState("");
 
-  const handleOpenModal = (type: string) => {
-    setModalType(type);
+  const [loading, setLoading] = useState(true);
+  const { buyNow, clearBuyNow } = useBuyNow();
+  const { products: cartProducts } = useCart();
+  const [products, setProducts] = useState<PurchaseProduct[]>([]);
+  const addressData = JSON.parse(localStorage.getItem("addressData") || "{}");
+
+  const [method, seteMethod] = useState("card");
+  const [response, setResponse] = useState<any>(null);
+  const {isOpen, onOpen, onClose} = useDisclosure();
+
+  const handleOpen = (m: string) => {
+    seteMethod(m);
     onOpen();
   };
 
-  const handlePaymentConfirmation = async (paymentData: any) => {
+
+  useEffect(() => {
+
+    const fetchProducts = async () => {
+      try {
+        if (buyNow) {
+          const response = await axios.get<Product & { _id: string }>(
+            `http://localhost:3000/products/${buyNow.id}`
+          );
+          const productData = response.data;
+          const product: PurchaseProduct = {
+            id: productData._id,
+            name: productData.nombre,
+            description: productData.descripcion,
+            price: productData.precio,
+            imagen: productData.imagen,
+            stock: productData.stock,
+            quantity: 1,
+          };
+
+          setProducts([product]);
+        } else if (cartProducts && cartProducts.length > 0) {
+          const fetchedProducts = await Promise.all(
+            cartProducts.map(async (cartProduct) => {
+              const response = await axios.get<Product & { _id: string }>(
+                `http://localhost:3000/products/${cartProduct.id}`
+              );
+              const productData = response.data;
+              const product: PurchaseProduct = {
+                id: productData._id,
+                name: productData.nombre,
+                description: productData.descripcion,
+                price: productData.precio,
+                imagen: productData.imagen,
+                stock: productData.stock,
+                quantity: cartProduct.cantidad,
+              };
+
+              return product;
+            })
+          );
+
+          setProducts(fetchedProducts);
+        }
+      } catch {
+        throw new Error("Error al obtener los productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const subtotal = products.reduce(
+    (acc, product) => acc + product.price * product.quantity,
+    0
+  );
+  const taxes = (subtotal * 0.15).toFixed(2);
+  const total = (subtotal + parseFloat(taxes)).toFixed(2);
+
+  const handleSubmit = async (e: any) => {
     try {
-      const response = await axios.post('http://localhost:3000/payments', {
-        method: paymentData.method,
-        amount: 100,
-        currency: "USD",
-        details: paymentData.info
+      // Asegúrate que la URL coincida con la de tu backend
+      const res = await axios.post('http://localhost:3000/payments', {
+        method,
+        amount: total,
+        currency: "Bs",
       });
 
-      const responseData = response.data as { success: boolean };
-      if (responseData.success) {
-        navigate("/package");
-      }
+      setResponse(res.data);
     } catch (error) {
-      console.error('Error processing payment:', error);
-      alert("Error al procesar el pago");
+      console.error('Error al procesar el pago:', error);
     }
   };
 
+
   return (
     <DefaultLayout>
-      <div className="container mx-auto p-4 flex flex-col gap-6">
-        {showProcessingAlert && (
-          <Alert className="mb-4" color="danger">
-            Estamos procesando el pago, por favor no cierre la página.
+      <h3 className={title()}>Método de Pago</h3>
+      <div className="container mx-auto p-4 flex flex-col md:flex-row gap-6 ">
+        <div className="bg-gray-100 p-4 rounded shadow max-w-2xl mx-auto dark:bg-neutral-900">
+          <Alert className="mb-5" color="danger" variant="solid">
+            Estamos procesando tu pago, por favor no cierres esta página.
           </Alert>
-        )}
-
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-bold">Método de Pago</h2>
-          </CardHeader>
-          <CardBody>
-            <p>Selecciona el método de pago que deseas utilizar:</p>
-            <Divider className="my-4" />
-            <div className="flex flex-col gap-4">
-              <Button
-                className="flex items-center justify-center gap-2"
-                color="warning"
-                size="lg"
-                onPress={() => handleOpenModal("paypal")}
-              >
-                <Image
-                  alt="PayPal"
-                  className="w-6 h-6"
-                  src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                />
-                Pagar con PayPal
-              </Button>
-
-              <Button
-                className="flex items-center justify-center gap-2"
-                color="secondary"
-                size="lg"
-                onPress={() => handleOpenModal("crypto")}
-              >
-                <Image
-                  alt="Criptomoneda"
-                  className="w-6 h-6"
-                  src="https://cryptologos.cc/logos/bitcoin-btc-logo.png"
-                />
-                Pagar con Criptomoneda
-              </Button>
-
-              <Button
-                className="flex items-center justify-center gap-2"
-                color="primary"
-                size="lg"
-                onPress={() => handleOpenModal("creditcard")}
-              >
-                <Image
-                  alt="Tarjeta de Crédito"
-                  className="w-6 h-6"
-                  src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Credit_card_font_awesome.svg"
-                />
-                Pagar con Tarjeta de Crédito
-              </Button>
+          <h2 className="text-2xl font-bold mb-4 dark:bg-neutral-900">Verificar Pedido</h2>
+          {loading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : (
+            <div className="space-y-4">
+              {products.map((product) => (
+                <Card
+                  key={product.id}
+                  className={`border p-4 rounded-lg shadow-md transition-colors duration-300 border-gray-800`}
+                >
+                  <div className="flex justify-end">
+                    <Button size="sm" onPress={() => navigate(`/product/${product.id}`)}>
+                      Revisar pedido
+                    </Button>
+                  </div>
+                  <div className="mt-4 flex">
+                    <Image
+                      alt={product.name}
+                      className="w-36 h-36 object-cover rounded"
+                      src={product.imagen}
+                    />
+                    <div className="ml-6 flex flex-col space-y-1">
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
+                      <p className="text-gray-600">{product.description}</p>
+                      <p className="text-gray-600">Cantidad: {product.quantity}</p>
+                      <p className="text-gray-600">Precio Unitario: Bs.{product.price}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
-          </CardBody>
-          <CardFooter className="flex flex-col items-center">
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              Al hacer clic en alguno de estos métodos, aceptas nuestros términos y condiciones.
-            </p>
-          </CardFooter>
-        </Card>
+          )}
+        </div>
 
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalHeader>
-            {modalType === "paypal" && "Pago con PayPal"}
-            {modalType === "crypto" && "Pago con Criptomoneda"}
-            {modalType === "creditcard" && "Pago con Tarjeta de Crédito"}
-          </ModalHeader>
-          <ModalBody>
-            {modalType === "paypal" && (
-              <div className="space-y-4">
-                <Input
-                  required
-                  label="Email de PayPal"
-                  placeholder="Email"
-                  type="email"
-                />
-                <Input
-                  required
-                  label="Contraseña"
-                  placeholder="Contraseña"
-                  type="password"
-                />
-                <Button 
-                  color="warning" 
-                  onPress={() => handlePaymentConfirmation({ 
-                    method: "paypal", 
-                    info: "Datos de PayPal" 
-                  })}
-                >
-                  Confirmar Pago
+        <div className="md:w-1/2">
+          <Skeleton className="rounded-lg" isLoaded={!loading} >
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-bold">Dirección de Envío</h2>
+              </CardHeader>
+              <CardBody>
+                {localStorage.getItem("addressData") ? (
+                  <div className="mb-4">
+                    <p>{addressData.name}</p>
+                    <p>{addressData.address1}</p>
+                    {addressData.address2 && <p>{addressData.address2}</p>}
+                    <p>
+                      {addressData.city}, {addressData.zip}
+                    </p>
+                    <p>{addressData.country}</p>
+                    <p>{addressData.phone}</p>
+                    <p>{addressData.email}</p>
+                  </div>
+                ) : (
+                  <p>No se ha proporcionado la dirección</p>
+                )}
+                <Divider className="my-4" />
+                <h3 className="text-lg font-bold mb-2">Resumen del Pedido</h3>
+                <p>
+                  <strong>Número de productos:</strong> {products.length}
+                </p>
+                <p>
+                  <strong>Subtotal:</strong> Bs.{subtotal.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Impuestos (15%):</strong> Bs.{taxes}
+                </p>
+                <p>
+                  <strong>Total:</strong> Bs.{total}
+                </p>
+              </CardBody>
+
+              <CardFooter className="flex flex-col items-center gap-5">
+                <Button isIconOnly className="w-full py-5 h-14 rounded-md" color="warning" onPress={() => handleOpen("paypal")}>
+                  <PaypaylIcon />
                 </Button>
-              </div>
-            )}
-
-            {modalType === "crypto" && (
-              <div className="space-y-4">
-                <Select
-                  label="Seleccionar Criptomoneda"
-                  selectedKeys={[selectedCrypto]}
-                  onSelectionChange={(keys) => setSelectedCrypto(Array.from(keys)[0] as string)}
-                >
-                  <SelectItem key="bitcoin">Bitcoin</SelectItem>
-                  <SelectItem key="ethereum">Ethereum</SelectItem>
-                </Select>
-                <Input
-                  required
-                  label="Wallet Address"
-                  placeholder="Dirección de Wallet"
-                />
-                <Button 
-                  color="secondary"
-                  onPress={() => handlePaymentConfirmation({
-                    method: "crypto",
-                    info: `Moneda: ${selectedCrypto}`
-                  })}
-                >
-                  Confirmar Pago
+                <Button className="text-xl font-bold text-white bg-black w-full h-14 rounded-md" color="success" onPress={() => handleOpen("card")}>
+                  <CardIcon /> Tarjeta de Crédito
                 </Button>
-              </div>
-            )}
-
-            {modalType === "creditcard" && (
-              <PaymentForm 
-                onSuccess={(data) => handlePaymentConfirmation({
-                  method: "creditcard",
-                  info: data
-                })}
-              />
-            )}
-          </ModalBody>
-        </Modal>
+                <Button className="text-xl font-bold text-white w-full h-14 rounded-md" color="primary" onPress={() => handleOpen("crypto")}>
+                  <CryptoIcon /> Criptomonedas
+                </Button>
+              </CardFooter>
+            </Card>
+          </Skeleton>
+        </div>
       </div>
+
+      <Modal isOpen={isOpen} size={"5xl"} onClose={onClose}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Informacion de Pago</ModalHeader>
+              <ModalBody>
+                {
+                  method === "paypal" ? (
+                    <PaypalBody/>
+                  ) : method === "card" ? (
+                    <CardpayBody />
+                  ) : method === "crypto" ? (
+                    <CryptoBody />
+                  ) : null
+                }
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancelar
+                </Button>
+                <Button color="primary" onPress={handleSubmit}>
+                  Pagar
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
     </DefaultLayout>
+
   );
 };
 
-export default PaymentPage;
+export default VerifyPurchasePage;
