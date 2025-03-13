@@ -16,11 +16,11 @@ import {
   Skeleton,
   Image,
   Alert,
+  Spinner,
   useDisclosure,
 } from "@heroui/react";
 import axios from "axios";
 import { useNavigate } from "react-router";
-
 import DefaultLayout from "@/layouts/default";
 import { useBuyNow } from "@/context/buyNowContext";
 import { useCart } from "@/context/cartContext";
@@ -42,7 +42,7 @@ const VerifyPurchasePage = () => {
   const { products: cartProducts } = useCart();
   const [products, setProducts] = useState<PurchaseProduct[]>([]);
   const addressData = JSON.parse(localStorage.getItem("addressData") || "{}");
-
+  const [showCheck, setShowCheck] = useState(false);
   const [method, seteMethod] = useState("card");
   const [response, setResponse] = useState<any>(null);
   const {isOpen, onOpen, onClose} = useDisclosure();
@@ -113,16 +113,29 @@ const VerifyPurchasePage = () => {
   const taxes = (subtotal * 0.15).toFixed(2);
   const total = (subtotal + parseFloat(taxes)).toFixed(2);
 
-  const handleSubmit = async (e: any) => {
+  const handlePayment = () => {
+    setLoading(true);
+    setShowCheck(false);
+    setTimeout(() => {
+      setLoading(false);
+      setShowCheck(true);
+      handleSubmit();
+    }, 5000);
+  };
+
+  const handleSubmit = async () => {
     try {
-      // Asegúrate que la URL coincida con la de tu backend
       const res = await axios.post('http://localhost:3000/payments', {
         method,
         amount: total,
         currency: "Bs",
       });
-
       setResponse(res.data);
+      console.log("handleSubmit ejecutado")
+      setTimeout(() => {
+        localStorage.removeItem("cart")
+        navigate("/package")
+      }, 2500);
     } catch (error) {
       console.error('Error al procesar el pago:', error);
     }
@@ -226,34 +239,40 @@ const VerifyPurchasePage = () => {
       </div>
 
       <Modal isOpen={isOpen} size={"5xl"} onClose={onClose}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Informacion de Pago</ModalHeader>
-              <ModalBody>
-                {
-                  method === "paypal" ? (
-                    <PaypalBody/>
-                  ) : method === "card" ? (
-                    <CardpayBody />
-                  ) : method === "crypto" ? (
-                    <CryptoBody />
-                  ) : null
-                }
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button color="primary" onPress={handleSubmit}>
-                  Pagar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">Información de Pago</ModalHeader>
+            <ModalBody>
+              {loading ? (
+                <div className="flex justify-center items-center h-full">
+                  <Spinner size="lg" color="primary" />
+                </div>
+              ) : showCheck ? (
+                <div className="flex justify-center items-center h-full">
+                  <img src="https://www.svgrepo.com/show/92787/check-mark.svg" alt="Check" className="h-20 w-20" />
+                  <p> Transacción completada con éxito.</p>
+                </div>
+              ) : method === "paypal" ? (
+                <PaypalBody />
+              ) : method === "card" ? (
+                <CardpayBody />
+              ) : method === "crypto" ? (
+                <CryptoBody />
+              ) : null}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={onClose}>
+                Cancelar
+              </Button>
+              <Button color="primary" onPress={handlePayment}>
+                Pagar
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
     </DefaultLayout>
 
   );
