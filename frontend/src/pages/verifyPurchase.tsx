@@ -31,13 +31,6 @@ const VerifyPurchasePage = () => {
 
   useEffect(() => {
 
-    const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
-
-    if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
-      clearBuyNow();
-      navigate('/');
-    }
-
     const fetchProducts = async () => {
       try {
         if (buyNow) {
@@ -87,7 +80,7 @@ const VerifyPurchasePage = () => {
     };
 
     fetchProducts();
-  }, [navigate]);
+  }, []);
 
   const subtotal = products.reduce(
     (acc, product) => acc + product.price * product.quantity,
