@@ -51,11 +51,15 @@ const CategoryPage = () => {
 
   return (
     <DefaultLayout>
+      <h1
+        className="text-3xl font-bold text-gray-800 dark:text-gray-200 m-10">
+        ¿Buscas alguna categoría en específico?
+      </h1>
       <Select
-        label="Categoría"
+        label="Categorías"
         labelPlacement="outside"
         name="category"
-        placeholder="¿Qué categoría quieres explorar?"
+        placeholder="Selecciona una de nuestras categorías disponibles:"
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         className="rounded-md p-6 shadow-md transition duration-200 ease-in-out hover:shadow-lg"
