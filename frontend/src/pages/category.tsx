@@ -3,10 +3,11 @@ import { Card, CardFooter, Image, Skeleton, CardBody, SelectItem, Select } from 
 import axios from "axios";
 import { Product } from "@/interface/product";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 
 const CategoryPage = () => {
   const navigation = useNavigate();
+  const location = useLocation();
   const [category, setCategory] = useState("");
   const [opcionesCategorias, setOpcionesCategorias] = useState<Set<string>>(new Set());
   const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
@@ -19,6 +20,14 @@ const CategoryPage = () => {
       navigation(`/product/${product.id}`);
     }, 300);
   };
+
+  // Detectar si hay una categoría en location.state y asignarla
+  useEffect(() => {
+    if (location.state && (location.state as any).category) {
+      setCategory((location.state as any).category);
+      console.log(category);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchProducts = async () => {
