@@ -12,6 +12,7 @@ import LandingPage from "@/pages/landing";
 import CategoryPage from "@/pages/category";
 import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
+import PaymentPage from "./pages/payment";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route element={<ProductForm />} path="/new-product" />
             <Route element={<AddressPage />} path="/address" />
             <Route element={<VerifyPurchasePage />} path="/verify-purchase" />
+            <Route element={<PaymentPage />} path="/payment" />
             {/* ListadoProductos */}
             {/* DetalleProducto */}
             {/* CategoriasProducto */}

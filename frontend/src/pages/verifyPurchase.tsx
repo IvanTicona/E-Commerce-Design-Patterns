@@ -166,7 +166,7 @@ const VerifyPurchasePage = () => {
               </CardBody>
 
               <CardFooter className="flex flex-col items-center">
-                <Button color="primary" size="lg">
+                <Button color="primary" size="lg" onPress={() => navigate("/payment")}>
                   Ir a método de pago
                 </Button>
                 <p className="text-sm text-gray-500 mt-2 text-center">
