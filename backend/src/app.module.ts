@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './product/product.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatBotModule } from './chatBot/chatbot.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ChatBotModule } from './chatBot/chatbot.module';
     ),
     ProductModule,
     ChatBotModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
