@@ -1,8 +1,8 @@
+/* eslint-disable no-console */
 import {
   Badge,
   Button,
   Card,
-  Divider,
   Modal,
   ModalBody,
   ModalContent,
@@ -11,7 +11,8 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import axios from "axios";
 
 import CartIcon from "@/icons/cartIcon";
 import { useCart } from "@/context/cartContext";
@@ -23,12 +24,30 @@ const CartShop = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { products: productsOnCart, clearCart } = useCart();
-  const handleOpen = () => {
+  const { products: productsOnCart, clearCart, removeProduct } = useCart();
+  const handleOpen = async () => {
     onOpen();
   };
 
   useEffect(() => {
+    axios
+      .get("http://localhost:3000/products")
+      .then((response) => {
+        const productsData: Product[] = (response.data as Product[]).map(
+          (prod: any) => ({
+            ...prod,
+            id: prod._id,
+          }),
+        );
+        const productsOnCartData = productsData.filter((product) =>
+          productsOnCart.some((cartProduct) => cartProduct.id === product.id),
+        );
+
+        setProducts(productsOnCartData);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+      });
     setCart(productsOnCart.length);
   }, [productsOnCart]);
 
@@ -52,7 +71,7 @@ const CartShop = () => {
       </Badge>
       <Modal
         classNames={{
-          body: "max-h-[70vh] overflow-y-auto",
+          body: "max-h-[70vh] overflow-y-auto gap-5",
         }}
         isOpen={isOpen}
         onClose={onClose}
@@ -67,34 +86,34 @@ const CartShop = () => {
                 {products.length === 0 ? (
                   <p className="text-center">No hay productos en el carrito.</p>
                 ) : (
-                  products.map((product, index) => (
-                    <>
-                      {index > 0 && <Divider />}
-                      <Card
-                        key={product.id}
-                        className="border-none w-full min-h-32 rounded-none"
-                        shadow="none"
-                      >
-                        <div className="flex items-center gap-2">
-                          <img
-                            alt={product.nombre}
-                            className="w-32 h-32 object-cover"
-                            src={product.imagen}
-                          />
-                          <div className="flex flex-col gap-1 w-64 h-32 justify-between">
-                            <p className="text-sm">{product.nombre}</p>
-                            <p className="text-sm">Bs. {product.precio}</p>
-                            <Button
-                              className="font-light border"
-                              color="danger"
-                              variant="bordered"
-                            >
-                              Quitar del carrito
-                            </Button>
-                          </div>
+                  products.map((product) => (
+                    <Card
+                      key={product.id}
+                      className="border-none w-full min-h-32 shadow-lg rounded-md"
+                      shadow="none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img
+                          alt={product.nombre}
+                          className="w-32 h-32 object-cover"
+                          src={product.imagen}
+                        />
+                        <div className="flex flex-col gap-1 w-64 h-32 justify-between">
+                          <p className="text-sm">{product.nombre}</p>
+                          <p className="text-sm">Bs. {product.precio}</p>
+                          <Button
+                            className="font-light border"
+                            color="danger"
+                            variant="bordered"
+                            onPress={() => {
+                              removeProduct(product.id);
+                            }}
+                          >
+                            Quitar del carrito
+                          </Button>
                         </div>
-                      </Card>
-                    </>
+                      </div>
+                    </Card>
                   ))
                 )}
               </ModalBody>

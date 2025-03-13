@@ -20,7 +20,7 @@ export const Navbar = () => {
         input: "text-sm",
       }}
       labelPlacement="outside"
-      placeholder="Search..."
+      placeholder="Buscar..."
       startContent={
         <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
       }
@@ -29,7 +29,11 @@ export const Navbar = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky" className="bg-gray-200 dark:bg-neutral-900">
+    <HeroUINavbar
+      className="bg-gray-200 dark:bg-neutral-900"
+      maxWidth="xl"
+      position="sticky"
+    >
       <div className="lg:flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
           <Link

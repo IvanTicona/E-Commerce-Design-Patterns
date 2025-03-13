@@ -58,11 +58,11 @@ const ProductPage = () => {
             <p className="text-lg font-light">
               Precio: Bs. {product?.precio || 0}
             </p>
-            <p className="text-lg font-light">Rating: {product?.rating || 0}</p>
+            <p className="text-lg font-light">{product?.descripcion}</p>
           </Skeleton>
         </div>
 
-        <div className="flex flex-col gap-5 col-span-2 row-span-5 col-start-6 p-5 rounded-lg border">
+        <div className="flex flex-col gap-5 col-span-2 row-span-5 col-start-6 p-5 rounded-lg border dark:border-gray-800 dark:bg-gray-800">
           {product && <PurchaseOptions {...product} />}
         </div>
       </div>
