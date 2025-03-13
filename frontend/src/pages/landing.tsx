@@ -1,17 +1,37 @@
 /* eslint-disable no-console */
-import { Card, CardFooter, Image, CardBody, Skeleton, Button } from "@heroui/react";
+import {
+  Card,
+  CardFooter,
+  Image,
+  CardBody,
+  Skeleton,
+  Button,
+} from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import { Product } from "@/interface/product";
+import ChatBot from "@/components/chatBot";
 
 const recyclers = [
-  { title: "Bienvenido a DanielLopezLTDA.\nTu tienda virtual de confianza.", desc: "Explora nuestro amplio catálogo de productos, contamos con productos tan únicos como interesantes.\nDesde Bandas elásticas, hasta calcetines de Pollos Copacabana.", buttonDesc: "Comienza a explorar" },
-  { title: "Explora en nuestras diveras categorías!", desc: "Contamos con una gran variedad de categorías y productos.\nPeluches, coleccionables, merchandicing...\nLo tenemos todo 🐢✨", buttonDesc: "Explorar categorías" },
-  { title: "No tan increíbles descuentos, pero si muy reales.\nPor lo general.", desc: "Contamos con descuentos especiales para productos seleccionados\nNo te pierdas ninguna de las ofertas recientes y usa ese dinero ahorrado en un poco de gasolina 💀", buttonDesc: "Plata!!" }
-]
+  {
+    title: "Bienvenido a DanielLopezLTDA.\nTu tienda virtual de confianza.",
+    desc: "Explora nuestro amplio catálogo de productos, contamos con productos tan únicos como interesantes.\nDesde Bandas elásticas, hasta calcetines de Pollos Copacabana.",
+    buttonDesc: "Comienza a explorar",
+  },
+  {
+    title: "Explora en nuestras diveras categorías!",
+    desc: "Contamos con una gran variedad de categorías y productos.\nPeluches, coleccionables, merchandicing...\nLo tenemos todo 🐢✨",
+    buttonDesc: "Explorar categorías",
+  },
+  {
+    title: "No tan increíbles descuentos, pero si muy reales.\nPor lo general.",
+    desc: "Contamos con descuentos especiales para productos seleccionados\nNo te pierdas ninguna de las ofertas recientes y usa ese dinero ahorrado en un poco de gasolina 💀",
+    buttonDesc: "Plata!!",
+  },
+];
 
 const LandingPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -49,10 +69,10 @@ const LandingPage = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(true); // Inicia la animación 
+      setFade(true); // Inicia la animación
       setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % recyclers.length);
-        setFade(false); 
+        setFade(false);
       }, 500); // Tiempo anim
     }, 6000); // Cambio en 6 s
 
@@ -68,7 +88,7 @@ const LandingPage = () => {
         navigation(`/category`);
         break;
       case 2:
-        navigation('/offers')
+        navigation("/offers");
         break;
     }
   };
@@ -76,30 +96,46 @@ const LandingPage = () => {
   return (
     <DefaultLayout>
       <div className="bg-white-800 dark:bg-neutral-900 max-w-7xl mx-auto">
-        <div className={`transition-opacity duration-500 ${fade ? 'opacity-0' : 'opacity-100'}`}>
+        <div
+          className={`transition-opacity duration-500 ${fade ? "opacity-0" : "opacity-100"}`}
+        >
           <div className="flex justify-between items-start rounded-lg p-12 shadow-md mx-auto m-10">
             {/* Sección a la izquierda */}
-            <div className="flex flex-col w-1/2"> {/* Cambiado a w-1/2 */}
-              <h1 className="text-6xl font-bold text-gray-800 dark:text-gray-200" style={{ whiteSpace: 'pre-line'}}>
+            <div className="flex flex-col w-1/2">
+              {" "}
+              {/* Cambiado a w-1/2 */}
+              <h1
+                className="text-6xl font-bold text-gray-800 dark:text-gray-200"
+                style={{ whiteSpace: "pre-line" }}
+              >
                 {recyclers[currentIndex].title}
               </h1>
             </div>
 
             {/* Sección por la derecha */}
             <div className="flex-grow text-right  m-6 w-1/2">
-              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200" style={{ whiteSpace: 'pre-line'}}>
+              <h2
+                className="text-lg font-semibold text-gray-700 dark:text-gray-200"
+                style={{ whiteSpace: "pre-line" }}
+              >
                 {recyclers[currentIndex].desc}
               </h2>
-              <Button color="primary" className="my-8 px-8 py-4 text-lg" 
-                onPress={handleButtonClick}>
+              <Button
+                color="primary"
+                className="my-8 px-8 py-4 text-lg"
+                onPress={handleButtonClick}
+              >
                 {recyclers[currentIndex].buttonDesc}
               </Button>
             </div>
           </div>
         </div>
       </div>
-      
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 m-10" style={{ whiteSpace: 'pre-line'}}>
+
+      <h1
+        className="text-3xl font-bold text-gray-800 dark:text-gray-200 m-10"
+        style={{ whiteSpace: "pre-line" }}
+      >
         Explora nuestros productos:
       </h1>
 
@@ -127,6 +163,7 @@ const LandingPage = () => {
                 <p className="text-default-500 text-lg">Bs.{item.precio}</p>
               </CardFooter>
             </Card>
+            <ChatBot />
           </Skeleton>
         ))}
       </div>
