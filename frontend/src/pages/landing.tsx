@@ -59,9 +59,9 @@ const LandingPage = () => {
                   width={384}
                 />
               </CardBody>
-              <CardFooter className="text-small justify-between">
+              <CardFooter className="text-base justify-between h-32">
                 <b>{item.nombre}</b>
-                <p className="text-default-500">{item.precio}</p>
+                <p className="text-default-500 text-lg">Bs.{item.precio}</p>
               </CardFooter>
             </Card>
           </Skeleton>
