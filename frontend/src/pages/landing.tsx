@@ -45,7 +45,7 @@ const LandingPage = () => {
           <Skeleton key={item.id} className="rounded-lg" isLoaded={!loading}>
             <Card
               isPressable
-              className="size-80"
+              className="size-80 p-2 h-auto"
               shadow="sm"
               onPress={() => handleDetails(item)}
             >
@@ -59,7 +59,7 @@ const LandingPage = () => {
                   width={384}
                 />
               </CardBody>
-              <CardFooter className="text-base justify-between h-32">
+              <CardFooter className="text-base justify-between">
                 <b>{item.nombre}</b>
                 <p className="text-default-500 text-lg">Bs.{item.precio}</p>
               </CardFooter>

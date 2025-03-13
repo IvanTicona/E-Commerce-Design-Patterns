@@ -70,7 +70,7 @@ const CategoryPage = () => {
       <div className="flex gap-4 flex-wrap">
         {filteredProducts.map((item) => (
           <Skeleton key={item.id} className="rounded-lg" isLoaded={!loading}>
-            <Card isPressable className="size-80" shadow="sm" onPress={() => handleDetails(item)}>
+            <Card isPressable className="size-80 p-2 h-auto" shadow="sm" onPress={() => handleDetails(item)}>
               <CardBody className="overflow-visible p-0">
                 <Image
                   alt={item.nombre}
@@ -81,9 +81,12 @@ const CategoryPage = () => {
                   width={384}
                 />
               </CardBody>
-              <CardFooter className="text-base justify-between h-32">
+              <CardFooter className="text-base justify-between">
                 <b>{item.nombre}</b>
                 <p className="text-default-500 text-lg">Bs.{item.precio}</p>
+              </CardFooter>
+              <CardFooter className="text-xs text-left">
+                <p>{item.descripcion.slice(0,90)}...</p>
               </CardFooter>
             </Card>
           </Skeleton>
