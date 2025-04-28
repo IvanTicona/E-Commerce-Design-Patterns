@@ -1,13 +1,14 @@
+/* eslint-disable prettier/prettier */
 import { Input } from "@heroui/react";
+import { useEffect, useState } from "react";
 
 import { SearchIcon } from "./icons";
-import { useEffect, useState } from "react";
 
 export const SearchInput = () => {
   // Estado para almacenar el valor del input
   const [query, setQuery] = useState("");
   // Estado para guardar los resultados de la búsqueda
-  const [results, setResults] = useState([]);
+  const [, setResults] = useState([]);
 
   useEffect(() => {
     // Si no hay consulta, limpiamos resultados
