@@ -21,7 +21,7 @@ export const SearchInput = () => {
     const timer = setTimeout(() => {
       // Aquí puedes hacer una petición a tu backend o filtrar una lista local.
       // Ejemplo de llamada a un API:
-      fetch(`http://localhost:3000/search?q=${encodeURIComponent(query)}`)
+      fetch(`https://3.88.197.78/search?q=${encodeURIComponent(query)}`)
         .then((response) => response.json())
         .then((data) => {
           // Se espera que el API devuelva un array de resultados

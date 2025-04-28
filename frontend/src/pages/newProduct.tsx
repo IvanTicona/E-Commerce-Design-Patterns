@@ -48,7 +48,7 @@ const ProductForm = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/products", data);
+      const res = await axios.post("https://3.88.197.78/products", data);
 
       setResponseMessage(JSON.stringify(res.data, null, 2));
     } catch (error) {

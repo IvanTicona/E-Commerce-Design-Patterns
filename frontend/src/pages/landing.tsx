@@ -47,7 +47,7 @@ const LandingPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/products")
+      .get("https://3.88.197.78/products")
       .then((response) => {
         const productsData: Product[] = (response.data as Product[]).map(
           (prod: any) => ({

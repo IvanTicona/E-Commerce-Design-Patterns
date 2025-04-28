@@ -17,7 +17,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     axios
-      .get<Product & { id: string }>(`http://localhost:3000/products/${id}`)
+      .get<Product & { id: string }>(`https://3.88.197.78/products/${id}`)
       .then((response) => {
         const productData: Product = {
           ...response.data,

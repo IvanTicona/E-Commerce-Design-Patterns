@@ -59,7 +59,7 @@ const VerifyPurchasePage = () => {
       try {
         if (buyNow) {
           const response = await axios.get<Product & { _id: string }>(
-            `http://localhost:3000/products/${buyNow.id}`
+            `https://3.88.197.78/products/${buyNow.id}`
           );
           const productData = response.data;
           const product: PurchaseProduct = {
@@ -77,7 +77,7 @@ const VerifyPurchasePage = () => {
           const fetchedProducts = await Promise.all(
             cartProducts.map(async (cartProduct) => {
               const response = await axios.get<Product & { _id: string }>(
-                `http://localhost:3000/products/${cartProduct.id}`
+                `https://3.88.197.78/products/${cartProduct.id}`
               );
               const productData = response.data;
               const product: PurchaseProduct = {
@@ -125,7 +125,7 @@ const VerifyPurchasePage = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post('http://localhost:3000/payments', {
+      const res = await axios.post('https://3.88.197.78/payments', {
         method,
         amount: total,
         currency: "Bs",

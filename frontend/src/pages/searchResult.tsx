@@ -20,7 +20,7 @@ const SearchResult = () => {
   useEffect(() => {
     if (query.trim() !== "") {
       fetch(
-        `http://localhost:3000/products/search?query=${encodeURIComponent(query)}`,
+        `https://3.88.197.78/products/search?query=${encodeURIComponent(query)}`,
       )
         .then((res) => res.json())
         .then((data) => {

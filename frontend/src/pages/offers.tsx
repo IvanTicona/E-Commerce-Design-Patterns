@@ -14,7 +14,7 @@ const OffersPage = () => {
 
   useEffect(() => {
     axios
-      .get<Product[]>("http://localhost:3000/products")
+      .get<Product[]>("https://3.88.197.78/products")
       .then((response) => {
         const filteredProducts = response.data
           .filter(
