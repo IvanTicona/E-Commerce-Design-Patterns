@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-console */
 import {
   Badge,
@@ -36,7 +37,6 @@ const CartShop = () => {
         const productsData: Product[] = (response.data as Product[]).map(
           (prod: any) => ({
             ...prod,
-            id: prod._id,
           }),
         );
         const productsOnCartData = productsData.filter((product) =>

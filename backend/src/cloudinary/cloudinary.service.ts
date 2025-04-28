@@ -1,37 +1,49 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-// cloudinary.service.ts
-import { Injectable } from '@nestjs/common';
-import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class CloudinaryService {
+  private readonly s3: S3Client;
+  private readonly bucket: string;
+  private readonly region: string;
+
   constructor() {
-    const configOptions: ConfigOptions = {
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    };
-    cloudinary.config(configOptions);
+    this.region = process.env.AWS_REGION!;
+    this.bucket = process.env.AWS_S3_BUCKET_NAME!;
+
+    this.s3 = new S3Client({
+      region: this.region,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      },
+    });
   }
 
   async uploadImage(file: Express.Multer.File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: 'products' },
-        (error: Error | undefined, result?: any) => {
-          if (error) {
-            return reject(error);
-          }
-          if (!result || !result.secure_url) {
-            return reject(new Error('Image upload failed'));
-          }
-          resolve(result.secure_url);
-        },
+    const key = `products/${Date.now()}-${file.originalname}`;
+
+    try {
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+          // ACL: 'public-read',
+        }),
       );
-      uploadStream.end(file.buffer);
-    });
+
+      // URL estándar de objetos públicos en S3:
+      return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
+    } catch (err) {
+      throw new InternalServerErrorException(
+        `Error subiendo imagen a S3: ${(err as Error).message}`,
+      );
+    }
   }
 }

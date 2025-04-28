@@ -1,47 +1,64 @@
-// product.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Product, ProductDocument } from './product.schema';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
-    private cloudinaryService: CloudinaryService,
+    @Inject('DDB_CLIENT')
+    private readonly ddb: DynamoDBDocumentClient,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async createProduct(
-    createProductDto: any,
-    file?: Express.Multer.File,
-  ): Promise<Product> {
-    let imageUrl = '';
-    if (file) {
-      imageUrl = await this.cloudinaryService.uploadImage(file);
-    }
-    const createdProduct = new this.productModel({
-      ...createProductDto,
+  async createProduct(dto: any, file?: Express.Multer.File) {
+    const imageUrl = file ? await this.cloudinaryService.uploadImage(file) : '';
+    const item = {
+      id: uuid(),
+      ...dto,
       imagen: imageUrl,
-    });
-    return createdProduct.save();
+      createdAt: new Date().toISOString(),
+    };
+
+    await this.ddb.send(
+      new PutCommand({
+        TableName: process.env.AWS_DDB_PRODUCTS_TABLE,
+        Item: item,
+      }),
+    );
+    return item;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productModel.find().exec();
+  async findAll() {
+    const { Items } = await this.ddb.send(
+      new ScanCommand({ TableName: process.env.AWS_DDB_PRODUCTS_TABLE }),
+    );
+    return Items;
   }
 
-  async findOne(id: string): Promise<Product> {
-    const product = await this.productModel.findById(id).exec();
-    if (!product) {
-      throw new NotFoundException(`Producto con ID ${id} no encontrado`);
-    }
-    return product;
+  async findOne(id: string) {
+    const { Item } = await this.ddb.send(
+      new GetCommand({
+        TableName: process.env.AWS_DDB_PRODUCTS_TABLE,
+        Key: { id },
+      }),
+    );
+    if (!Item) throw new NotFoundException(`Producto ${id} no existe`);
+    return Item;
   }
 
-  async search(query: string): Promise<Product[]> {
-    return this.productModel
-      .find({ nombre: { $regex: query, $options: 'i' } })
-      .exec();
+  async search(query: string) {
+    const { Items } = await this.ddb.send(
+      new ScanCommand({
+        TableName: process.env.AWS_DDB_PRODUCTS_TABLE,
+        FilterExpression: 'contains(#nombre, :q)',
+        ExpressionAttributeNames: { '#nombre': 'nombre' },
+        ExpressionAttributeValues: { ':q': query },
+      }),
+    );
+    return Items;
   }
 }

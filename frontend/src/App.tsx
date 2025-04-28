@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Route, Routes } from "react-router-dom";
 import "animate.css";
 
@@ -14,8 +15,7 @@ import OffersPage from "@/pages/offers";
 import ProductPage from "@/pages/product";
 import PackageState from "@/pages/packageState";
 import SearchResult from "@/pages/searchResult";
-import PaymentPage from "./pages/payment";
-
+import PaymentPage from "@/pages/payment";
 
 function App() {
   return (

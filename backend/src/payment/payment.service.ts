@@ -1,18 +1,17 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// src/payment/payment.service.ts
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Payment } from './interfaces/payment.interface';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { v4 as uuid } from 'uuid';
 import { CardPaymentAdapter } from './adapters/card-payment.adapter';
 import { PaypalPaymentAdapter } from './adapters/paypal-payment.adapter';
 import { CryptoPaymentAdapter } from './adapters/crypto-payment.adapter';
+import { Payment } from './interfaces/payment.interface';
 
 @Injectable()
 export class PaymentService {
-  // Mapa de adaptadores disponibles
   private adapters = {
     card: new CardPaymentAdapter(),
     paypal: new PaypalPaymentAdapter(),
@@ -20,27 +19,32 @@ export class PaymentService {
   };
 
   constructor(
-    @InjectModel('Transaccion') private transaccionModel: Model<any>,
+    @Inject('DDB_CLIENT')
+    private readonly ddb: DynamoDBDocumentClient,
   ) {}
 
   async processPayment(method: string, payment: Payment): Promise<any> {
     const adapter = this.adapters[method];
-    if (!adapter) {
-      throw new BadRequestException('Método de pago no soportado');
-    }
-    // Procesa el pago a través del adapter
+    if (!adapter) throw new BadRequestException('Método no soportado');
+
     const result = await adapter.processPayment(payment);
 
-    // Guarda la transacción en la base de datos
-    const nuevaTransaccion = new this.transaccionModel({
+    const transactionItem = {
+      transactionId: uuid(),
       method,
       amount: payment.amount,
       currency: payment.currency,
       result,
-      date: new Date(),
-    });
-    await nuevaTransaccion.save();
+      date: new Date().toISOString(),
+    };
 
-    return { message: 'Pago procesado y transacción guardada', result };
+    await this.ddb.send(
+      new PutCommand({
+        TableName: process.env.AWS_DDB_TRANSACTIONS_TABLE,
+        Item: transactionItem,
+      }),
+    );
+
+    return { message: 'Pago procesado', result };
   }
 }

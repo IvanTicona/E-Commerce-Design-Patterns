@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-console */
 import {
   Card,
@@ -13,7 +14,6 @@ import { useEffect, useState } from "react";
 
 import DefaultLayout from "@/layouts/default";
 import { Product } from "@/interface/product";
-import ChatBot from "@/components/chatBot";
 
 const recyclers = [
   {
@@ -52,7 +52,6 @@ const LandingPage = () => {
         const productsData: Product[] = (response.data as Product[]).map(
           (prod: any) => ({
             ...prod,
-            id: prod._id,
           }),
         );
 
@@ -69,12 +68,12 @@ const LandingPage = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(true); // Inicia la animación
+      setFade(true);
       setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % recyclers.length);
         setFade(false);
-      }, 500); // Tiempo anim
-    }, 6000); // Cambio en 6 s
+      }, 500);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -100,10 +99,7 @@ const LandingPage = () => {
           className={`transition-opacity duration-500 ${fade ? "opacity-0" : "opacity-100"}`}
         >
           <div className="flex justify-between items-start rounded-lg p-12 shadow-md mx-auto m-10">
-            {/* Sección a la izquierda */}
             <div className="flex flex-col w-1/2">
-              {" "}
-              {/* Cambiado a w-1/2 */}
               <h1
                 className="text-6xl font-bold text-gray-800 dark:text-gray-200"
                 style={{ whiteSpace: "pre-line" }}
@@ -112,7 +108,6 @@ const LandingPage = () => {
               </h1>
             </div>
 
-            {/* Sección por la derecha */}
             <div className="flex-grow text-right  m-6 w-1/2">
               <h2
                 className="text-lg font-semibold text-gray-700 dark:text-gray-200"

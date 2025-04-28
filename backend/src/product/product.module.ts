@@ -1,16 +1,18 @@
-// product.module.ts
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Product, ProductSchema } from './product.schema';
-import { ProductService } from './product.service';
+import { AwsModule } from '../aws/aws.module';
 import { ProductController } from './product.controller';
+import { ProductService } from './product.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    AwsModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, CloudinaryService],
+  providers: [
+    ProductService,
+    CloudinaryService,
+  ],
 })
 export class ProductModule {}

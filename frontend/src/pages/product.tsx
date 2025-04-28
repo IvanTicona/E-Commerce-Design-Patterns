@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Divider, Image, Skeleton } from "@heroui/react";
@@ -16,11 +17,10 @@ const ProductPage = () => {
 
   useEffect(() => {
     axios
-      .get<Product & { _id: string }>(`http://localhost:3000/products/${id}`)
+      .get<Product & { id: string }>(`http://localhost:3000/products/${id}`)
       .then((response) => {
         const productData: Product = {
           ...response.data,
-          id: response.data._id,
         };
 
         setProduct(productData);
